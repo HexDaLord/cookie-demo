@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wie Websites dich erkennen 🍪 – Interaktive Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body {
       font-family: "Segoe UI", Arial, sans-serif;
@@ -78,6 +79,13 @@
       margin-bottom: 1.5rem;
       color: #333;
     }
+    #map {
+      height: 300px;
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -128,6 +136,7 @@
 
       <button onclick="getLocation()">Standort abfragen</button>
       <pre id="location-info">Noch keine Standortdaten.</pre>
+      <div id="map"></div>
     </section>
   </main>
 
@@ -135,6 +144,7 @@
     © Unterrichts-Demo – Keine Daten werden übertragen oder gespeichert.
   </footer>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // --- Hilfsfunktionen ---
     function getCookie(name) {
@@ -146,11 +156,7 @@
     function updateGreeting() {
       const username = getCookie("username");
       const greeting = document.getElementById("greeting");
-      if (username) {
-        greeting.textContent = `Hallo, ${username}!`;
-      } else {
-        greeting.textContent = "Hallo, Schüler!";
-      }
+      greeting.textContent = username ? `Hallo, ${username}!` : "Hallo, Schüler!";
     }
 
     // --- Cookies ---
@@ -196,9 +202,12 @@
       document.getElementById("device-info").textContent = text;
     }
 
-    // --- Standort ---
+    // --- Standort + Karte ---
+    let map;
+
     function getLocation() {
       const output = document.getElementById("location-info");
+      const mapDiv = document.getElementById("map");
 
       if (!navigator.geolocation) {
         output.textContent = "❌ Standort wird von diesem Browser nicht unterstützt.";
@@ -211,9 +220,26 @@
         pos => {
           const { latitude, longitude } = pos.coords;
           output.textContent = `✅ Standort ermittelt:\nBreitengrad: ${latitude.toFixed(5)}\nLängengrad: ${longitude.toFixed(5)}`;
+
+          mapDiv.style.display = "block";
+
+          // Karte erstellen oder updaten
+          if (!map) {
+            map = L.map('map').setView([latitude, longitude], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap-Mitwirkende'
+            }).addTo(map);
+          } else {
+            map.setView([latitude, longitude], 13);
+          }
+
+          L.marker([latitude, longitude]).addTo(map)
+            .bindPopup("📍 Dein Standort")
+            .openPopup();
         },
         err => {
           output.textContent = "⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt.";
+          mapDiv.style.display = "none";
         }
       );
     }
