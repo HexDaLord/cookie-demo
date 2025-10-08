@@ -1,252 +1,176 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wie Websites dich erkennen 🍪 – Interaktive Demo</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background-color: #f6f8fa;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #4a90e2;
-      color: white;
-      padding: 1.5rem;
-      text-align: center;
-    }
-    main {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 1rem;
-    }
-    section {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    h2 {
-      color: #4a90e2;
-      margin-top: 0;
-    }
-    button {
-      background-color: #4a90e2;
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    button:hover {
-      background-color: #357abd;
-    }
-    pre {
-      background: #f9f9f9;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      margin-top: 0.5rem;
-    }
-    .info {
-      font-size: 0.95rem;
-      background: #eef6ff;
-      padding: 0.8rem 1rem;
-      border-left: 4px solid #4a90e2;
-      margin-bottom: 1rem;
-      border-radius: 6px;
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background: #f0f0f0;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    #greeting {
-      font-size: 1.3rem;
-      font-weight: 500;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #333;
-    }
-    #map {
-      height: 300px;
-      width: 100%;
-      border-radius: 8px;
-      margin-top: 1rem;
-      display: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wie Websites dich erkennen 🍪 – Interaktive Demo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  body { font-family: "Segoe UI", Arial, sans-serif; background:#f6f8fa; margin:0; padding:0; color:#333; }
+  header { background:#4a90e2; color:white; padding:1.5rem; text-align:center; }
+  main { max-width:900px; margin:2rem auto; padding:1rem; }
+  section { background:white; border-radius:12px; padding:1.5rem; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:2rem; }
+  h2 { color:#4a90e2; margin-top:0; }
+  button { background:#4a90e2; color:white; border:none; padding:0.6rem 1.2rem; border-radius:8px; cursor:pointer; font-size:1rem; margin-right:0.5rem; margin-bottom:0.5rem; }
+  button:hover { background:#357abd; }
+  pre { background:#f9f9f9; padding:1rem; border-radius:8px; overflow-x:auto; white-space:pre-wrap; margin-top:0.5rem; }
+  .info { font-size:0.95rem; background:#eef6ff; padding:0.8rem 1rem; border-left:4px solid #4a90e2; margin-bottom:1rem; border-radius:6px; }
+  #map { height:300px; width:100%; border-radius:8px; margin-top:1rem; display:none; }
+  #greeting { font-size:1.3rem; font-weight:500; text-align:center; margin-bottom:1.5rem; }
+  footer { text-align:center; padding:1rem; background:#f0f0f0; font-size:0.9rem; color:#666; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Wie Websites dich erkennen 🍪</h1>
-    <p>Eine interaktive Demo für den Unterricht</p>
-  </header>
+<header>
+  <h1>Wie Websites dich erkennen 🍪</h1>
+  <p>Interaktive Unterrichts-Demo</p>
+</header>
 
-  <main>
-    <div id="greeting">Hallo, Schüler!</div>
+<main>
+  <div id="greeting">Hallo, Schüler!</div>
 
-    <!-- Abschnitt 1: Cookies -->
-    <section>
-      <h2>🍪 1. Cookies – kleine Speicher im Browser</h2>
-      <div class="info">
-        Websites können kleine Textdateien im Browser speichern, sogenannte <b>Cookies</b>.  
-        Darin können z. B. dein Name, deine Sprache oder Einstellungen gespeichert werden.  
-        Manche Cookies sind nützlich – andere werden zum <b>Tracking</b> benutzt.
-      </div>
+  <!-- Abschnitt 1: Cookies -->
+  <section>
+    <h2>🍪 Cookies – persönliche Begrüßung</h2>
+    <div class="info">
+      Websites können kleine Textdateien speichern, sogenannte Cookies.  
+      Diese Demo zeigt, wie ein Name gespeichert wird, um dich bei deinem nächsten Besuch zu erkennen.
+    </div>
+    <button onclick="setCookies()">Cookies setzen</button>
+    <button onclick="deleteCookies()">Cookies löschen</button>
+    <pre id="cookie-info">Noch keine Cookies gesetzt.</pre>
+  </section>
 
-      <button onclick="setCookies()">Cookies setzen</button>
-      <button onclick="deleteCookies()">Cookies löschen</button>
+  <!-- Abschnitt 2: Gerätedaten -->
+  <section>
+    <h2>💻 Browser- & Gerätedaten</h2>
+    <div class="info">
+      Websites können technische Informationen über dein Gerät erkennen – z. B. Browsertyp, Sprache, Bildschirmgröße oder Zeitzone.
+    </div>
+    <button onclick="showDeviceInfo()">Daten anzeigen</button>
+    <pre id="device-info">Noch keine Daten angezeigt.</pre>
+  </section>
 
-      <pre id="cookie-info">Noch keine Cookies gesetzt.</pre>
-    </section>
+  <!-- Abschnitt 3: Standort -->
+  <section>
+    <h2>📍 Standortdaten</h2>
+    <div class="info">
+      Dein Standort kann – nur mit deiner Zustimmung – vom Browser ermittelt werden.  
+      Das passiert z. B. über GPS oder WLAN.  
+      Die Karte zeigt an, wo sich dein Gerät ungefähr befindet.
+    </div>
+    <button onclick="getLocation()">Standort abfragen</button>
+    <pre id="location-info">Noch keine Standortdaten.</pre>
+    <div id="map"></div>
+  </section>
 
-    <!-- Abschnitt 2: Browser- & Gerätedaten -->
-    <section>
-      <h2>💻 2. Browser- und Gerätedaten</h2>
-      <div class="info">
-        Auch ohne Cookies kann eine Website schon einiges über dein Gerät erfahren –  
-        z. B. welches Betriebssystem du nutzt, welche Sprache eingestellt ist  
-        oder wie groß dein Bildschirm ist.
-      </div>
+  <!-- Abschnitt 4: Werbecookies -->
+  <section>
+    <h2>📢 Werbecookies & Tracking</h2>
+    <div class="info">
+      Neben nützlichen Cookies gibt es auch sogenannte <b>Tracking- oder Werbecookies</b>.  
+      Diese stammen häufig nicht von der Website selbst, sondern von Werbenetzwerken oder Analyseanbietern.  
+      Sie verfolgen, welche Seiten du besuchst, um dir personalisierte Werbung zu zeigen.  
+      <br><br>
+      👉 Beispiel: Wenn du auf einer Shopping-Seite nach Schuhen suchst, kann ein Werbecookie dafür sorgen, dass du später auf anderen Seiten wieder Werbung für diese Schuhe siehst.  
+      <br><br>
+      In dieser Demo werden selbstverständlich <b>keine echten Tracking-Cookies</b> gesetzt.
+    </div>
+  </section>
 
-      <button onclick="showDeviceInfo()">Daten anzeigen</button>
-      <pre id="device-info">Noch keine Daten angezeigt.</pre>
-    </section>
+  <!-- Abschnitt 5: Entwicklertools -->
+  <section>
+    <h2>🛠 Cookies einsehen über Entwicklertools</h2>
+    <div class="info">
+      In modernen Browsern kannst du selbst sehen, welche Cookies gespeichert sind:  
+      <ul>
+        <li>1️⃣ Rechtsklick auf die Seite → <b>„Untersuchen“</b> (oder F12)</li>
+        <li>2️⃣ Tab <b>„Application“</b> (Chrome) oder <b>„Speicher“</b> (Firefox) auswählen</li>
+        <li>3️⃣ Unter <b>Cookies</b> findest du alle gespeicherten Werte dieser Website</li>
+      </ul>
+      So kannst du selbst nachvollziehen, was gespeichert wird – und Cookies gezielt löschen.
+    </div>
+  </section>
+</main>
 
-    <!-- Abschnitt 3: Standortdaten -->
-    <section>
-      <h2>📍 3. Standortdaten</h2>
-      <div class="info">
-        Einige Websites (z. B. Karten oder Wetterseiten) können deinen Standort abfragen.  
-        Das funktioniert aber <b>nur mit deiner ausdrücklichen Zustimmung</b>.  
-        Diese Demo zeigt, wie das aussieht. Besuche die Seite auch mal mit deinem Handy, und vergleiche.
-      </div>
+<footer>© Unterrichts-Demo – Keine Daten werden übertragen oder gespeichert.</footer>
 
-      <button onclick="getLocation()">Standort abfragen</button>
-      <pre id="location-info">Noch keine Standortdaten.</pre>
-      <div id="map"></div>
-    </section>
-  </main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// --- Cookies ---
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+function updateGreeting() {
+  const username = getCookie("username");
+  const greeting = document.getElementById("greeting");
+  greeting.textContent = username ? `Hallo, ${username}!` : "Hallo, Schüler!";
+}
+function setCookies() {
+  const name = prompt("Wie heißt du?", "Schülerin");
+  if (!name) return;
+  document.cookie = `username=${encodeURIComponent(name)}; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/`;
+  document.cookie = "theme=hell; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/";
+  showCookies();
+  updateGreeting();
+}
+function showCookies() {
+  const cookieStr = document.cookie;
+  document.getElementById("cookie-info").textContent = cookieStr || "Keine Cookies vorhanden.";
+}
+function deleteCookies() {
+  document.cookie.split(";").forEach(c=>{
+    const eqPos=c.indexOf("=");
+    const name=eqPos>-1?c.substr(0,eqPos).trim():c.trim();
+    document.cookie=name+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  });
+  showCookies();
+  updateGreeting();
+}
 
-  <footer>
-    © Unterrichts-Demo – Keine Daten werden übertragen oder gespeichert.
-  </footer>
+// --- Gerätedaten ---
+function showDeviceInfo() {
+  const info = {
+    "Browser / User Agent": navigator.userAgent,
+    "Sprache": navigator.language,
+    "Cookies aktiviert": navigator.cookieEnabled,
+    "Plattform": navigator.platform,
+    "Bildschirmgröße": `${window.screen.width} x ${window.screen.height}`,
+    "Zeitzone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+    "Aktuelle Uhrzeit": new Date().toLocaleString()
+  };
+  let text="";
+  for(const[key,value] of Object.entries(info)) text+=`• ${key}: ${value}\n`;
+  document.getElementById("device-info").textContent=text;
+}
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    // --- Hilfsfunktionen ---
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
+// --- Standort + Karte ---
+let map;
+function getLocation() {
+  const output=document.getElementById("location-info");
+  const mapDiv=document.getElementById("map");
+  if(!navigator.geolocation){ output.textContent="❌ Standort wird von diesem Browser nicht unterstützt."; return;}
+  output.textContent="📍 Standort wird abgefragt...";
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const {latitude, longitude, accuracy}=pos.coords;
+      output.textContent=`✅ Standort ermittelt:\nBreitengrad: ${latitude.toFixed(5)}\nLängengrad: ${longitude.toFixed(5)}\nGenauigkeit: ±${Math.round(accuracy)} Meter`;
+      mapDiv.style.display="block";
+      if(!map){
+        map=L.map('map').setView([latitude, longitude],13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'© OpenStreetMap-Mitwirkende'}).addTo(map);
+      }else map.setView([latitude,longitude],13);
+      L.marker([latitude,longitude]).addTo(map).bindPopup("📍 Dein Standort").openPopup();
+    },
+    err=>{output.textContent="⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt."; mapDiv.style.display="none";}
+  );
+}
 
-    function updateGreeting() {
-      const username = getCookie("username");
-      const greeting = document.getElementById("greeting");
-      greeting.textContent = username ? `Hallo, ${username}!` : "Hallo, Schüler!";
-    }
-
-    // --- Cookies ---
-    function setCookies() {
-      const name = prompt("Wie heißt du?", "Schülerin");
-      if (!name) return;
-      document.cookie = `username=${encodeURIComponent(name)}; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/`;
-      document.cookie = "theme=hell; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/";
-      showCookies();
-      updateGreeting();
-    }
-
-    function showCookies() {
-      const cookieStr = document.cookie;
-      document.getElementById("cookie-info").textContent = cookieStr || "Keine Cookies vorhanden.";
-    }
-
-    function deleteCookies() {
-      document.cookie.split(";").forEach(c => {
-        const eqPos = c.indexOf("=");
-        const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();
-        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      });
-      showCookies();
-      updateGreeting();
-    }
-
-    // --- Gerätedaten ---
-    function showDeviceInfo() {
-      const info = {
-        "Browser / User Agent": navigator.userAgent,
-        "Sprache": navigator.language,
-        "Cookies aktiviert": navigator.cookieEnabled,
-        "Plattform": navigator.platform,
-        "Bildschirmgröße": `${window.screen.width} x ${window.screen.height}`,
-        "Zeitzone": Intl.DateTimeFormat().resolvedOptions().timeZone,
-        "Aktuelle Uhrzeit": new Date().toLocaleString()
-      };
-      let text = "";
-      for (const [key, value] of Object.entries(info)) {
-        text += `• ${key}: ${value}\n`;
-      }
-      document.getElementById("device-info").textContent = text;
-    }
-
-    // --- Standort + Karte ---
-    let map;
-
-    function getLocation() {
-      const output = document.getElementById("location-info");
-      const mapDiv = document.getElementById("map");
-
-      if (!navigator.geolocation) {
-        output.textContent = "❌ Standort wird von diesem Browser nicht unterstützt.";
-        return;
-      }
-
-      output.textContent = "📍 Standort wird abgefragt...";
-
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const { latitude, longitude } = pos.coords;
-          output.textContent = `✅ Standort ermittelt:\nBreitengrad: ${latitude.toFixed(5)}\nLängengrad: ${longitude.toFixed(5)}`;
-
-          mapDiv.style.display = "block";
-
-          // Karte erstellen oder updaten
-          if (!map) {
-            map = L.map('map').setView([latitude, longitude], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: '© OpenStreetMap-Mitwirkende'
-            }).addTo(map);
-          } else {
-            map.setView([latitude, longitude], 13);
-          }
-
-          L.marker([latitude, longitude]).addTo(map)
-            .bindPopup("📍 Dein Standort")
-            .openPopup();
-        },
-        err => {
-          output.textContent = "⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt.";
-          mapDiv.style.display = "none";
-        }
-      );
-    }
-
-    // --- Initiales Laden ---
-    updateGreeting();
-    showCookies();
-  </script>
+// --- Initial ---
+updateGreeting();
+showCookies();
+</script>
 </body>
 </html>
