@@ -3,125 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cookie-Demonstration 🍪</title>
+  <title>Wie Websites dich erkennen 🍪 – Interaktive Demo</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #f6f8fa;
       color: #333;
-      padding: 2rem;
-      max-width: 700px;
-      margin: auto;
+      margin: 0;
+      padding: 0;
     }
-    h1 {
-      text-align: center;
-      color: #4a4a4a;
-    }
-    button {
-      margin: 0.5rem;
-      padding: 0.6rem 1.2rem;
-      border: none;
+    header {
       background-color: #4a90e2;
       color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    h2 {
+      color: #4a90e2;
+      margin-top: 0;
+    }
+    button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
       border-radius: 8px;
       cursor: pointer;
       font-size: 1rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
     }
     button:hover {
       background-color: #357abd;
     }
     pre {
-      background: white;
+      background: #f9f9f9;
       padding: 1rem;
       border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      min-height: 3rem;
+      overflow-x: auto;
       white-space: pre-wrap;
+      margin-top: 0.5rem;
     }
-    #cookie-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-top: 1px solid #ccc;
-      padding: 1rem;
-      display: none;
+    .info {
+      font-size: 0.95rem;
+      background: #eef6ff;
+      padding: 0.8rem 1rem;
+      border-left: 4px solid #4a90e2;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+    }
+    footer {
       text-align: center;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    }
-    #cookie-banner button {
-      background-color: #27ae60;
+      padding: 1rem;
+      background: #f0f0f0;
+      font-size: 0.9rem;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <h1>Cookie-Demonstration 🍪</h1>
-  <p>
-    Diese Seite zeigt, wie Cookies im Browser gespeichert, ausgelesen und gelöscht werden können.
-  </p>
+  <header>
+    <h1>Wie Websites dich erkennen 🍪</h1>
+    <p>Eine interaktive Demo für den Unterricht</p>
+  </header>
 
-  <div>
-    <button onclick="setDemoCookies()">Cookies setzen</button>
-    <button onclick="showCookies()">Cookies anzeigen</button>
-    <button onclick="deleteCookies()">Cookies löschen</button>
-  </div>
+  <main>
+    <!-- Abschnitt 1: Cookies -->
+    <section>
+      <h2>🍪 1. Cookies – kleine Speicher im Browser</h2>
+      <div class="info">
+        Websites können kleine Textdateien im Browser speichern, sogenannte <b>Cookies</b>.  
+        Darin können z. B. dein Name, deine Sprache oder Einstellungen gespeichert werden.  
+        Manche Cookies sind nützlich – andere werden zum <b>Tracking</b> benutzt.
+      </div>
 
-  <h3>Aktuelle Cookies:</h3>
-  <pre id="output">Noch keine Cookies gesetzt.</pre>
+      <button onclick="setCookies()">Cookies setzen</button>
+      <button onclick="showCookies()">Cookies anzeigen</button>
+      <button onclick="deleteCookies()">Cookies löschen</button>
 
-  <!-- Simulierter Cookie-Banner -->
-  <div id="cookie-banner">
-    <p>Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern.</p>
-    <button onclick="acceptCookies()">OK</button>
-  </div>
+      <pre id="cookie-info">Noch keine Cookies gesetzt.</pre>
+    </section>
+
+    <!-- Abschnitt 2: Browser- & Gerätedaten -->
+    <section>
+      <h2>💻 2. Browser- und Gerätedaten</h2>
+      <div class="info">
+        Auch ohne Cookies kann eine Website schon einiges über dein Gerät erfahren –  
+        z. B. welches Betriebssystem du nutzt, welche Sprache eingestellt ist  
+        oder wie groß dein Bildschirm ist.
+      </div>
+
+      <button onclick="showDeviceInfo()">Daten anzeigen</button>
+      <pre id="device-info">Noch keine Daten angezeigt.</pre>
+    </section>
+
+    <!-- Abschnitt 3: Standortdaten -->
+    <section>
+      <h2>📍 3. Standortdaten</h2>
+      <div class="info">
+        Einige Websites (z. B. Karten oder Wetterseiten) können deinen Standort abfragen.  
+        Das funktioniert aber <b>nur mit deiner ausdrücklichen Zustimmung</b>.  
+        Diese Demo zeigt, wie das aussieht.
+      </div>
+
+      <button onclick="getLocation()">Standort abfragen</button>
+      <pre id="location-info">Noch keine Standortdaten.</pre>
+    </section>
+  </main>
+
+  <footer>
+    © Unterrichts-Demo – Keine Daten werden übertragen oder gespeichert.
+  </footer>
 
   <script>
-    // --- Cookie-Funktionen ---
-    function setDemoCookies() {
-      const expiry = new Date();
-      expiry.setDate(expiry.getDate() + 7); // 7 Tage gültig
-      document.cookie = "username=Schülerin; expires=" + expiry.toUTCString() + "; path=/";
-      document.cookie = "theme=dark; expires=" + expiry.toUTCString() + "; path=/";
-      alert("Cookies gesetzt!");
+    // --- Cookies ---
+    function setCookies() {
+      document.cookie = "username=Schülerin; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/";
+      document.cookie = "theme=hell; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/";
       showCookies();
     }
 
     function showCookies() {
-      const output = document.getElementById("output");
-      output.textContent = document.cookie || "Keine Cookies vorhanden.";
+      const cookieStr = document.cookie;
+      document.getElementById("cookie-info").textContent = cookieStr || "Keine Cookies vorhanden.";
     }
 
     function deleteCookies() {
       document.cookie.split(";").forEach(c => {
         const eqPos = c.indexOf("=");
-        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;";
+        const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       });
-      alert("Alle Cookies gelöscht!");
       showCookies();
     }
 
-    // --- Cookie-Banner ---
-    function checkCookieConsent() {
-      if (!document.cookie.includes("cookieConsent=true")) {
-        document.getElementById("cookie-banner").style.display = "block";
+    // --- Gerätedaten ---
+    function showDeviceInfo() {
+      const info = {
+        "Browser / User Agent": navigator.userAgent,
+        "Sprache": navigator.language,
+        "Cookies aktiviert": navigator.cookieEnabled,
+        "Plattform": navigator.platform,
+        "Bildschirmgröße": `${window.screen.width} x ${window.screen.height}`,
+        "Zeitzone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+        "Aktuelle Uhrzeit": new Date().toLocaleString()
+      };
+      let text = "";
+      for (const [key, value] of Object.entries(info)) {
+        text += `• ${key}: ${value}\n`;
       }
+      document.getElementById("device-info").textContent = text;
     }
 
-    function acceptCookies() {
-      const expiry = new Date();
-      expiry.setFullYear(expiry.getFullYear() + 1);
-      document.cookie = "cookieConsent=true; expires=" + expiry.toUTCString() + "; path=/";
-      document.getElementById("cookie-banner").style.display = "none";
-      showCookies();
+    // --- Standort ---
+    function getLocation() {
+      const output = document.getElementById("location-info");
+
+      if (!navigator.geolocation) {
+        output.textContent = "❌ Standort wird von diesem Browser nicht unterstützt.";
+        return;
+      }
+
+      output.textContent = "📍 Standort wird abgefragt...";
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const { latitude, longitude } = pos.coords;
+          output.textContent = `✅ Standort ermittelt:\nBreitengrad: ${latitude.toFixed(5)}\nLängengrad: ${longitude.toFixed(5)}`;
+        },
+        err => {
+          output.textContent = "⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt.";
+        }
+      );
     }
 
-    // Initial
-    window.onload = () => {
-      checkCookieConsent();
-      showCookies();
-    };
+    // Beim Laden gleich mal Cookies anzeigen
+    showCookies();
   </script>
 </body>
 </html>
