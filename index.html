@@ -71,6 +71,13 @@
       font-size: 0.9rem;
       color: #666;
     }
+    #greeting {
+      font-size: 1.3rem;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
   </style>
 </head>
 <body>
@@ -80,6 +87,8 @@
   </header>
 
   <main>
+    <div id="greeting">Hallo, Schüler!</div>
+
     <!-- Abschnitt 1: Cookies -->
     <section>
       <h2>🍪 1. Cookies – kleine Speicher im Browser</h2>
@@ -90,7 +99,6 @@
       </div>
 
       <button onclick="setCookies()">Cookies setzen</button>
-      <button onclick="showCookies()">Cookies anzeigen</button>
       <button onclick="deleteCookies()">Cookies löschen</button>
 
       <pre id="cookie-info">Noch keine Cookies gesetzt.</pre>
@@ -128,11 +136,31 @@
   </footer>
 
   <script>
+    // --- Hilfsfunktionen ---
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function updateGreeting() {
+      const username = getCookie("username");
+      const greeting = document.getElementById("greeting");
+      if (username) {
+        greeting.textContent = `Hallo, ${username}!`;
+      } else {
+        greeting.textContent = "Hallo, Schüler!";
+      }
+    }
+
     // --- Cookies ---
     function setCookies() {
-      document.cookie = "username=Schülerin; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/";
+      const name = prompt("Wie heißt du?", "Schülerin");
+      if (!name) return;
+      document.cookie = `username=${encodeURIComponent(name)}; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/`;
       document.cookie = "theme=hell; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/";
       showCookies();
+      updateGreeting();
     }
 
     function showCookies() {
@@ -147,6 +175,7 @@
         document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       });
       showCookies();
+      updateGreeting();
     }
 
     // --- Gerätedaten ---
@@ -189,7 +218,8 @@
       );
     }
 
-    // Beim Laden gleich mal Cookies anzeigen
+    // --- Initiales Laden ---
+    updateGreeting();
     showCookies();
   </script>
 </body>
