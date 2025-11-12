@@ -1,176 +1,361 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wie Websites dich erkennen 🍪 – Interaktive Demo</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-  body { font-family: "Segoe UI", Arial, sans-serif; background:#f6f8fa; margin:0; padding:0; color:#333; }
-  header { background:#4a90e2; color:white; padding:1.5rem; text-align:center; }
-  main { max-width:900px; margin:2rem auto; padding:1rem; }
-  section { background:white; border-radius:12px; padding:1.5rem; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:2rem; }
-  h2 { color:#4a90e2; margin-top:0; }
-  button { background:#4a90e2; color:white; border:none; padding:0.6rem 1.2rem; border-radius:8px; cursor:pointer; font-size:1rem; margin-right:0.5rem; margin-bottom:0.5rem; }
-  button:hover { background:#357abd; }
-  pre { background:#f9f9f9; padding:1rem; border-radius:8px; overflow-x:auto; white-space:pre-wrap; margin-top:0.5rem; }
-  .info { font-size:0.95rem; background:#eef6ff; padding:0.8rem 1rem; border-left:4px solid #4a90e2; margin-bottom:1rem; border-radius:6px; }
-  #map { height:300px; width:100%; border-radius:8px; margin-top:1rem; display:none; }
-  #greeting { font-size:1.3rem; font-weight:500; text-align:center; margin-bottom:1.5rem; }
-  footer { text-align:center; padding:1rem; background:#f0f0f0; font-size:0.9rem; color:#666; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wie Websites dich erkennen — Interaktive Demo (Überarbeitet)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root{
+      --bg:#f6f8fa; --card:#ffffff; --primary:#4a90e2; --muted:#6b7280; --glass: rgba(255,255,255,0.6);
+    }
+    [data-theme="dark"]{
+      --bg:#0f1724; --card:#0b1220; --primary:#60a5fa; --muted:#9ca3af; --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif; margin:0; background:var(--bg); color:var(--muted);}
+    header{background:linear-gradient(90deg,var(--primary), #2e6fb8); color:white; padding:1.25rem 1rem; display:flex; gap:1rem; align-items:center; justify-content:space-between}
+    header .brand{display:flex; gap:.75rem; align-items:center}
+    header h1{font-size:1.1rem; margin:0; color:white}
+    header p{margin:0; font-size:.86rem; opacity:.95}
+
+    main{max-width:1100px; margin:1.25rem auto; padding:1rem;}
+    .layout{display:grid; grid-template-columns: 320px 1fr; gap:1rem}
+
+    /* Sidebar */
+    .sidebar{position:sticky; top:1rem; align-self:start}
+    .card{background:var(--card); border-radius:12px; padding:1rem; box-shadow:0 6px 20px rgba(2,6,23,0.08); color:var(--muted)}
+    .card h2{color:var(--primary); margin:0 0 .5rem 0}
+    .muted{font-size:.9rem; color:var(--muted)}
+
+    /* Progress */
+    .progress{display:flex; gap:.5rem; align-items:center; margin-top:.5rem}
+    .step{flex:1; background:var(--glass); padding:.45rem .6rem; border-radius:8px; text-align:center; font-weight:600; color:var(--muted);}
+    .step.active{background:linear-gradient(90deg,var(--primary), #2e6fb8); color:white}
+
+    /* Controls */
+    .controls{display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.7rem}
+    button{background:var(--primary); color:white; border:none; padding:.5rem .75rem; border-radius:8px; cursor:pointer; font-weight:600}
+    .btn-ghost{background:transparent; color:var(--primary); border:1px solid var(--glass)}
+    button:active{transform:translateY(1px)}
+
+    /* Content area */
+    .content{display:flex; flex-direction:column; gap:1rem}
+    section{padding:1rem; border-radius:12px; background:var(--card); box-shadow:0 6px 20px rgba(2,6,23,0.04)}
+    section h3{margin-top:0; color:var(--primary)}
+    .info{background:linear-gradient(180deg, rgba(234,244,255,0.5), transparent); padding:.6rem; border-left:4px solid var(--primary); border-radius:8px; color:var(--muted)}
+    pre{background:rgba(0,0,0,0.03); padding:.75rem; border-radius:8px; overflow:auto; font-size:.92rem; color:var(--muted)}
+
+    /* form */
+    .form-row{display:flex; gap:.5rem; margin-top:.6rem}
+    input[type=text], input[type=password]{flex:1; padding:.5rem .6rem; border-radius:8px; border:1px solid #e6edf5; font-size:.95rem}
+    label{font-weight:600; font-size:.95rem; color:var(--muted)}
+
+    /* small screens */
+    @media (max-width:880px){ .layout{grid-template-columns:1fr; } .sidebar{position:static} }
+
+    /* map */
+    #map{height:280px; border-radius:8px; margin-top:.6rem}
+
+    footer{text-align:center; font-size:.82rem; color:var(--muted); margin-top:1rem}
+
+    /* cookie table */
+    table{width:100%; border-collapse:collapse; margin-top:.6rem}
+    th,td{padding:.45rem .5rem; text-align:left; border-bottom:1px solid rgba(0,0,0,0.05); font-size:.9rem}
+    th{color:var(--muted)}
+
+    /* small badges */
+    .badge{display:inline-block; padding:.2rem .45rem; border-radius:999px; font-size:.78rem; background:var(--glass); color:var(--muted)}
+  </style>
 </head>
-<body>
-<header>
-  <h1>Wie Websites dich erkennen 🍪</h1>
-  <p>Interaktive Unterrichts-Demo</p>
-</header>
-
-<main>
-  <div id="greeting">Hallo, Schüler!</div>
-
-  <!-- Abschnitt 1: Cookies -->
-  <section>
-    <h2>🍪 Cookies – persönliche Begrüßung</h2>
-    <div class="info">
-      Websites können kleine Textdateien speichern, sogenannte Cookies.  
-      Diese Demo zeigt, wie ein Name gespeichert wird, um dich bei deinem nächsten Besuch zu erkennen.
+<body data-theme="light">
+  <header>
+    <div class="brand">
+      <div style="font-size:1.5rem">🍪</div>
+      <div>
+        <h1>Wie Websites dich erkennen</h1>
+        <p>Interaktive Unterrichts-Demo – Schulstufe: 9. Klasse / AHS 5. Klasse</p>
+      </div>
     </div>
-    <button onclick="setCookies()">Cookies setzen</button>
-    <button onclick="deleteCookies()">Cookies löschen</button>
-    <pre id="cookie-info">Noch keine Cookies gesetzt.</pre>
-  </section>
-
-  <!-- Abschnitt 2: Gerätedaten -->
-  <section>
-    <h2>💻 Browser- & Gerätedaten</h2>
-    <div class="info">
-      Websites können technische Informationen über dein Gerät erkennen – z. B. Browsertyp, Sprache, Bildschirmgröße oder Zeitzone.
+    <div style="display:flex; gap:.6rem; align-items:center">
+      <div class="muted" id="welcome-text">Willkommen!</div>
+      <button id="theme-toggle" class="btn-ghost">Dark</button>
     </div>
-    <button onclick="showDeviceInfo()">Daten anzeigen</button>
-    <pre id="device-info">Noch keine Daten angezeigt.</pre>
-  </section>
+  </header>
 
-  <!-- Abschnitt 3: Standort -->
-  <section>
-    <h2>📍 Standortdaten</h2>
-    <div class="info">
-      Dein Standort kann – nur mit deiner Zustimmung – vom Browser ermittelt werden.  
-      Das passiert z. B. über GPS oder WLAN.  
-      Die Karte zeigt an, wo sich dein Gerät ungefähr befindet.
+  <main>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="card">
+          <h2>Schritt-für-Schritt</h2>
+          <div class="muted">Führe die Schritte durch, um Cookies & Tracking zu verstehen.</div>
+          <div class="progress" id="progress">
+            <div class="step" data-step="1">1. Cookies</div>
+            <div class="step" data-step="2">2. Gerät</div>
+            <div class="step" data-step="3">3. Standort</div>
+            <div class="step" data-step="4">4. Tracking</div>
+            <div class="step" data-step="5">5. Login</div>
+          </div>
+
+          <div style="margin-top:.8rem" class="muted">Schnellaktionen</div>
+          <div class="controls">
+            <button onclick="showAllCookies()">Cookies anzeigen</button>
+            <button onclick="clearAllCookies()" class="btn-ghost">Alle löschen</button>
+            <button onclick="simulateVisit()" class="btn-ghost">Seite neu laden (sim.)</button>
+          </div>
+
+          <div style="margin-top:.8rem" class="muted">Cookie-Übersicht</div>
+          <div id="cookie-table"></div>
+        </div>
+
+        <div style="height:1rem"></div>
+
+        <div class="card">
+          <h2>Session vs Persistent</h2>
+          <div class="muted">Session-Cookies existieren nur während einer Browser-Sitzung. Persistente Cookies haben ein Ablaufdatum.</div>
+          <div style="margin-top:.6rem; display:flex; gap:.5rem">
+            <button onclick="setPersistentDemo()">Persistent setzen</button>
+            <button onclick="setSessionDemo()" class="btn-ghost">Session setzen</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content">
+        <section class="card">
+          <h3>🍪 Cookies – persönliche Begrüßung & Demo</h3>
+          <div class="info">Diese Sektion zeigt wie persistent gespeicherte Cookies (z. B. Name) und Session-Cookies (Login-Sitzung) funktionieren. Es werden <b>keine</b> echten Tracker gesetzt.</div>
+
+          <div style="margin-top:.6rem">
+            <div class="form-row">
+              <input id="name-input" type="text" placeholder="Name (z. B. Anna)" />
+              <button onclick="saveNamePersistent()">Als Persistent speichern</button>
+              <button onclick="saveNameSession()" class="btn-ghost">Als Session speichern</button>
+            </div>
+            <div style="margin-top:.5rem" class="muted">Aktuelle Begrüßung:</div>
+            <pre id="greeting">Hallo, Schüler!</pre>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>💻 Gerätedaten</h3>
+          <div class="info">Technische Informationen, die Websites mit JavaScript auslesen können.</div>
+          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
+            <button onclick="showDeviceInfo()">Daten anzeigen</button>
+            <button onclick="clearDeviceInfo()" class="btn-ghost">Löschen</button>
+          </div>
+          <pre id="device-info">Noch keine Daten angezeigt.</pre>
+        </section>
+
+        <section class="card">
+          <h3>📍 Standort (nur mit Zustimmung)</h3>
+          <div class="info">Wenn erlaubt, zeigt die Karte ungefähr, wo sich das Gerät befindet.</div>
+          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
+            <button onclick="getLocation()">Standort abfragen</button>
+            <button onclick="clearLocation()" class="btn-ghost">Karte verstecken</button>
+          </div>
+          <pre id="location-info">Noch keine Standortdaten.</pre>
+          <div id="map" style="display:none"></div>
+        </section>
+
+        <section class="card">
+          <h3>📢 Tracking-Simulation</h3>
+          <div class="info">Simuliere ein Werbecookie (tracking_id) und beobachte, wie eine Seite dich bei einem erneuten Besuch "wiedererkennen" könnte.</div>
+          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
+            <button onclick="setTracking()">Tracking setzen</button>
+            <button onclick="simulateAd()" class="btn-ghost">Simuliere Ad-Targeting</button>
+            <button onclick="clearTracking()" class="btn-ghost">Tracking löschen</button>
+          </div>
+          <pre id="tracking-info">Tracking nicht gesetzt.</pre>
+        </section>
+
+        <section class="card">
+          <h3>🔐 Mini-Register / Login (lokal & ohne Server)</h3>
+          <div class="info">Registrieren & Anmelden werden nur lokal simuliert. Registrierte Daten werden im <b>localStorage</b> gespeichert. Die Login-Sitzung demonstriert einen Session-Cookie.</div>
+
+          <div style="margin-top:.6rem">
+            <div class="form-row">
+              <input id="reg-username" type="text" placeholder="Benutzername" />
+              <input id="reg-password" type="password" placeholder="Passwort" />
+              <button onclick="registerUser()">Registrieren</button>
+            </div>
+
+            <div class="form-row" style="margin-top:.5rem">
+              <input id="login-username" type="text" placeholder="Benutzername" />
+              <input id="login-password" type="password" placeholder="Passwort" />
+              <button onclick="loginUser()">Login</button>
+              <button onclick="logoutUser()" class="btn-ghost">Logout</button>
+            </div>
+
+            <div style="margin-top:.6rem" class="muted">Session-Info:</div>
+            <pre id="session-info">Nicht eingeloggt.</pre>
+          </div>
+        </section>
+
+        <footer>© Unterrichts-Demo – Keine Daten werden an Server übertragen.</footer>
+      </section>
     </div>
-    <button onclick="getLocation()">Standort abfragen</button>
-    <pre id="location-info">Noch keine Standortdaten.</pre>
-    <div id="map"></div>
-  </section>
+  </main>
 
-  <!-- Abschnitt 4: Werbecookies -->
-  <section>
-    <h2>📢 Werbecookies & Tracking</h2>
-    <div class="info">
-      Neben nützlichen Cookies gibt es auch sogenannte <b>Tracking- oder Werbecookies</b>.  
-      Diese stammen häufig nicht von der Website selbst, sondern von Werbenetzwerken oder Analyseanbietern.  
-      Sie verfolgen, welche Seiten du besuchst, um dir personalisierte Werbung zu zeigen.  
-      <br><br>
-      👉 Beispiel: Wenn du auf einer Shopping-Seite nach Schuhen suchst, kann ein Werbecookie dafür sorgen, dass du später auf anderen Seiten wieder Werbung für diese Schuhe siehst.  
-      <br><br>
-      In dieser Demo werden selbstverständlich <b>keine echten Tracking-Cookies</b> gesetzt.
-    </div>
-  </section>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    /* ----------------------------- Helpers ----------------------------- */
+    function setCookie(name,value,days){
+      let s = encodeURIComponent(value) + "; path=/";
+      if(typeof days === 'number'){
+        const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
+        s += "; expires="+d.toUTCString();
+      }
+      document.cookie = name + '=' + s;
+      renderCookieTable();
+    }
+    function setSessionCookie(name,value){
+      // session cookie: no expires set -> expires at end of browser session
+      document.cookie = name + '=' + encodeURIComponent(value) + '; path=/';
+      renderCookieTable();
+    }
+    function getCookie(name){
+      const match = document.cookie.match('(^|;)\\s*'+name+'=([^;]+)');
+      return match ? decodeURIComponent(match.pop()) : null;
+    }
+    function deleteCookie(name){ document.cookie = name + '=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'; renderCookieTable(); }
+    function clearAllCookies(){document.cookie.split(';').forEach(c=>{const n=c.split('=')[0].trim(); if(n) deleteCookie(n)});}
 
-  <!-- Abschnitt 5: Entwicklertools -->
-  <section>
-    <h2>🛠 Cookies einsehen über Entwicklertools</h2>
-    <div class="info">
-      In modernen Browsern kannst du selbst sehen, welche Cookies gespeichert sind:  
-      <ul>
-        <li>1️⃣ Rechtsklick auf die Seite → <b>„Untersuchen“</b> </li>
-        <li>2️⃣ Tab <b>„Application“</b> oder <b>„Speicher“</b> auswählen</li>
-        <li>3️⃣ Unter <b>Cookies</b> findest du alle gespeicherten Werte dieser Website</li>
-      </ul>
-      So kannst du selbst nachvollziehen, was gespeichert wird – und Cookies gezielt löschen. Lösche zum Beispiel den Cookie für deinen Namen und lade die Seite neu.
-    </div>
-  </section>
-</main>
+    function renderCookieTable(){
+      const box = document.getElementById('cookie-table');
+      const cookies = document.cookie ? document.cookie.split(';').map(c=>c.trim()).filter(Boolean) : [];
+      if(!cookies.length){ box.innerHTML = '<div class="muted">Keine Cookies gesetzt.</div>'; return; }
+      let html = '<table><thead><tr><th>Name</th><th>Wert</th><th></th></tr></thead><tbody>';
+      cookies.forEach(c=>{ const [k,v]=c.split('='); html += `<tr><td>${k}</td><td>${decodeURIComponent(v||'')}</td><td><button onclick="deleteCookie('${k}')" class="btn-ghost">Löschen</button></td></tr>` });
+      html += '</tbody></table>';
+      box.innerHTML = html;
+      updateGreeting();
+    }
 
-<footer>© Unterrichts-Demo – Keine Daten werden übertragen oder gespeichert.</footer>
+    function updateGreeting(){
+      const g = document.getElementById('greeting');
+      const name = getCookie('username') || sessionStorage.getItem('username');
+      g.textContent = name ? `Hallo, ${name}!` : 'Hallo, Schüler!';
+      document.getElementById('welcome-text').textContent = name ? `Angemeldet: ${name}` : 'Nicht angemeldet';
+    }
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-// --- Cookies ---
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
-function updateGreeting() {
-  const username = getCookie("username");
-  const greeting = document.getElementById("greeting");
-  greeting.textContent = username ? `Hallo, ${username}!` : "Hallo, Schüler!";
-}
-function setCookies() {
-  const name = prompt("Wie heißt du?", "Schülerin");
-  if (!name) return;
-  document.cookie = `username=${encodeURIComponent(name)}; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/`;
-  document.cookie = "theme=hell; expires=Fri, 31 Dec 2025 23:59:59 UTC; path=/";
-  showCookies();
-  updateGreeting();
-}
-function showCookies() {
-  const cookieStr = document.cookie;
-  document.getElementById("cookie-info").textContent = cookieStr || "Keine Cookies vorhanden.";
-}
-function deleteCookies() {
-  document.cookie.split(";").forEach(c=>{
-    const eqPos=c.indexOf("=");
-    const name=eqPos>-1?c.substr(0,eqPos).trim():c.trim();
-    document.cookie=name+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-  });
-  showCookies();
-  updateGreeting();
-}
+    /* --------------------- Persistent vs Session Demo -------------------- */
+    function saveNamePersistent(){ const name = document.getElementById('name-input').value.trim(); if(!name) return alert('Bitte Namen eingeben'); setCookie('username', name, 365); setCookie('theme','light',365); updateGreeting(); }
+    function saveNameSession(){ const name = document.getElementById('name-input').value.trim(); if(!name) return alert('Bitte Namen eingeben'); sessionStorage.setItem('username', name); setSessionCookie('session_demo','1'); updateGreeting(); renderCookieTable(); }
+    function setPersistentDemo(){ setCookie('demo_persistent','persistentValue',365); alert('Persistent Cookie gesetzt (läuft 365 Tage)'); }
+    function setSessionDemo(){ setSessionCookie('demo_session','tempValue'); alert('Session Cookie gesetzt (verschwindet beim Schließen des Tabs/Browsers)'); }
 
-// --- Gerätedaten ---
-function showDeviceInfo() {
-  const info = {
-    "Browser / User Agent": navigator.userAgent,
-    "Sprache": navigator.language,
-    "Cookies aktiviert": navigator.cookieEnabled,
-    "Plattform": navigator.platform,
-    "Bildschirmgröße": `${window.screen.width} x ${window.screen.height}`,
-    "Zeitzone": Intl.DateTimeFormat().resolvedOptions().timeZone,
-    "Aktuelle Uhrzeit": new Date().toLocaleString()
-  };
-  let text="";
-  for(const[key,value] of Object.entries(info)) text+=`• ${key}: ${value}\n`;
-  document.getElementById("device-info").textContent=text;
-}
+    /* --------------------- Device info -------------------- */
+    function showDeviceInfo(){
+      const info = {
+        'User Agent': navigator.userAgent,
+        'Sprache': navigator.language,
+        'Cookies aktiviert': navigator.cookieEnabled,
+        'Plattform': navigator.platform,
+        'Bildschirm': `${window.screen.width}×${window.screen.height}`,
+        'Zeitzone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+        'Uhrzeit': new Date().toLocaleString()
+      };
+      let text = '';
+      for(const k in info) text += `• ${k}: ${info[k]}\n`;
+      document.getElementById('device-info').textContent = text;
+      markStep(2);
+    }
+    function clearDeviceInfo(){ document.getElementById('device-info').textContent = 'Noch keine Daten angezeigt.'; }
 
-// --- Standort + Karte ---
-let map;
-function getLocation() {
-  const output=document.getElementById("location-info");
-  const mapDiv=document.getElementById("map");
-  if(!navigator.geolocation){ output.textContent="❌ Standort wird von diesem Browser nicht unterstützt."; return;}
-  output.textContent="📍 Standort wird abgefragt...";
-  navigator.geolocation.getCurrentPosition(
-    pos=>{
-      const {latitude, longitude, accuracy}=pos.coords;
-      output.textContent=`✅ Standort ermittelt:\nBreitengrad: ${latitude.toFixed(5)}\nLängengrad: ${longitude.toFixed(5)}\nGenauigkeit: ±${Math.round(accuracy)} Meter`;
-      mapDiv.style.display="block";
-      if(!map){
-        map=L.map('map').setView([latitude, longitude],13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'© OpenStreetMap-Mitwirkende'}).addTo(map);
-      }else map.setView([latitude,longitude],13);
-      L.marker([latitude,longitude]).addTo(map).bindPopup("📍 Dein Standort").openPopup();
-    },
-    err=>{output.textContent="⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt."; mapDiv.style.display="none";}
-  );
-}
+    /* --------------------- Geolocation + Leaflet -------------------- */
+    let map, marker;
+    function getLocation(){
+      const out = document.getElementById('location-info');
+      const mapDiv = document.getElementById('map');
+      if(!navigator.geolocation){ out.textContent = '❌ Geolocation nicht unterstützt.'; return; }
+      out.textContent = '📍 Standort wird abgefragt...';
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const lat = pos.coords.latitude; const lon = pos.coords.longitude; const acc = pos.coords.accuracy;
+        out.textContent = `✅ Standort:\nBreitengrad: ${lat.toFixed(5)}\nLängengrad: ${lon.toFixed(5)}\nGenauigkeit: ±${Math.round(acc)} m`;
+        mapDiv.style.display = 'block';
+        if(!map){ map = L.map('map').setView([lat,lon],13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'© OpenStreetMap-Mitwirkende' }).addTo(map); }
+        else map.setView([lat,lon],13);
+        if(marker) marker.remove(); marker = L.marker([lat,lon]).addTo(map).bindPopup('📍 Dein Standort').openPopup();
+        markStep(3);
+      }, err=>{ out.textContent = '⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt.'; document.getElementById('map').style.display='none'; });
+    }
+    function clearLocation(){ document.getElementById('map').style.display='none'; document.getElementById('location-info').textContent='Noch keine Standortdaten.'; }
 
-// --- Initial ---
-updateGreeting();
-showCookies();
-</script>
+    /* --------------------- Tracking Simulation -------------------- */
+    function setTracking(){ const id = Math.random().toString(36).slice(2,10); setCookie('tracking_id', id, 90); document.getElementById('tracking-info').textContent = `Tracking gesetzt: ${id}`; markStep(4); }
+    function simulateAd(){ const id = getCookie('tracking_id'); if(!id) return alert('Kein Tracking gesetzt.'); // einfache Simulation: merken welche "Produktkategorie" besucht wurde
+      const category = prompt('Wähle eine Produktkategorie, um Targeting zu simulieren (z.B. Schuhe):','Schuhe'); if(!category) return;
+      // speichern die letzte Kategorie per localStorage (simuliertes Cross-Site-Profil)
+      localStorage.setItem('last_category', category);
+      alert(`Simulierter Besuch: ${category}. Beim nächsten Besuch könnte eine Ad für ${category} erscheinen.`);
+      document.getElementById('tracking-info').textContent = `Tracking aktiv (${id}). Letzte Kategorie: ${category}`;
+    }
+    function clearTracking(){ deleteCookie('tracking_id'); localStorage.removeItem('last_category'); document.getElementById('tracking-info').textContent = 'Tracking nicht gesetzt.'; }
+
+    function simulateVisit(){ // simuliert einen erneuten Besuch: liest tracking und last_category
+      const id = getCookie('tracking_id'); const cat = localStorage.getItem('last_category');
+      if(id && cat){ alert(`Wiederkehrender Besuch erkannt. Tracking-ID ${id} → mögliche Ad für ${cat}`); }
+      else if(id){ alert(`Wiederkehrender Besucher (Tracking-ID ${id}). Kein Kategorie-Profil vorhanden.`); }
+      else { alert('Kein Tracking vorhanden — Besucher erscheint neu.'); }
+      // mark all steps lightly
+      if(id) markStep(4); if(getCookie('username') || sessionStorage.getItem('username')) markStep(5);
+    }
+
+    /* --------------------- Mini Register / Login -------------------- */
+    function registerUser(){ const u = document.getElementById('reg-username').value.trim(); const p = document.getElementById('reg-password').value; if(!u||!p) return alert('Username + Passwort erforderlich');
+      // einfache lokale Speicherung (nur Demo):
+      const users = JSON.parse(localStorage.getItem('demo_users')||'{}');
+      if(users[u]) return alert('Benutzername existiert bereits');
+      users[u] = { password: btoa(p) }; // NICHT sicher — nur Demo
+      localStorage.setItem('demo_users', JSON.stringify(users));
+      alert('Registrierung erfolgreich (lokal). Du kannst dich jetzt einloggen.');
+    }
+    function loginUser(){ const u = document.getElementById('login-username').value.trim(); const p = document.getElementById('login-password').value; if(!u||!p) return alert('Bitte Username + Passwort eingeben');
+      const users = JSON.parse(localStorage.getItem('demo_users')||'{}');
+      if(!users[u] || users[u].password !== btoa(p)) return alert('Ungültige Anmeldedaten');
+      // setze Session-Cookie (keine expires): demonstriert Session-Cookie
+      setSessionCookie('session_user', u);
+      // außerdem setzen wir eine sessionStorage-Variable für UI
+      sessionStorage.setItem('username', u);
+      updateSessionInfo(); renderCookieTable(); markStep(5);
+    }
+    function logoutUser(){ sessionStorage.removeItem('username'); deleteCookie('session_user'); updateSessionInfo(); renderCookieTable(); }
+    function updateSessionInfo(){ const s = sessionStorage.getItem('username'); document.getElementById('session-info').textContent = s ? `Eingeloggt als ${s} (Session-Cookie)` : 'Nicht eingeloggt.'; updateGreeting(); }
+
+    /* --------------------- UI: Theme, Progress -------------------- */
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.addEventListener('click', ()=>{
+      const root = document.body; const theme = root.getAttribute('data-theme');
+      const next = theme==='light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next); themeToggle.textContent = next==='dark' ? 'Light' : 'Dark';
+      setCookie('theme_pref', next, 365);
+    });
+
+    function applySavedTheme(){ const t = getCookie('theme_pref'); if(t){ document.body.setAttribute('data-theme', t); themeToggle.textContent = t==='dark' ? 'Light' : 'Dark'; } }
+
+    function markStep(n){ document.querySelectorAll('.step').forEach(el=>el.classList.toggle('active', Number(el.getAttribute('data-step'))===n)); }
+
+    /* --------------------- Small actions -------------------- */
+    function showAllCookies(){ renderCookieTable(); alert('Cookies wurden im Sidebar aktualisiert.'); }
+    function clearAllCookies(){ if(confirm('Alle Cookies löschen? Dies löscht auch Session-Cookie (Login).')){ clearAllCookiesInternal(); }}
+    function clearAllCookiesInternal(){ document.cookie.split(';').forEach(c=>{ const name = c.split('=')[0].trim(); if(name) deleteCookie(name); }); localStorage.removeItem('last_category'); sessionStorage.removeItem('username'); updateSessionInfo(); }
+
+    /* --------------------- Init -------------------- */
+    function init(){ renderCookieTable(); applySavedTheme(); updateSessionInfo(); updateGreeting(); // prefill fields for demo
+      const storedName = getCookie('username'); if(storedName) document.getElementById('name-input').value = storedName;
+    }
+
+    // expose some functions to window for inline onclick handlers
+    window.showDeviceInfo = showDeviceInfo; window.clearDeviceInfo = clearDeviceInfo; window.getLocation = getLocation; window.clearLocation = clearLocation;
+    window.setTracking = setTracking; window.simulateAd = simulateAd; window.clearTracking = clearTracking;
+    window.saveNamePersistent = saveNamePersistent; window.saveNameSession = saveNameSession; window.setPersistentDemo = setPersistentDemo; window.setSessionDemo = setSessionDemo;
+    window.registerUser = registerUser; window.loginUser = loginUser; window.logoutUser = logoutUser; window.showAllCookies = renderCookieTable; window.clearAllCookies = clearAllCookies; window.simulateVisit = simulateVisit;
+
+    // avoid name clash
+    function clearAllCookies(){ clearAllCookiesInternal(); }
+
+    // start
+    init();
+  </script>
 </body>
 </html>
