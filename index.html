@@ -20,7 +20,7 @@
     header p{margin:0; font-size:.86rem; opacity:.95}
 
     main{max-width:1100px; margin:1.25rem auto; padding:1rem;}
-    .layout{display:grid; grid-template-columns: 320px 1fr; gap:1rem}
+    .layout{display:grid; grid-template-columns: 380px 1fr; gap:1rem} /* Sidebar breiter: mehr Platz für die Schritte */
 
     /* Sidebar */
     .sidebar{position:sticky; top:1rem; align-self:start}
@@ -29,8 +29,8 @@
     .muted{font-size:.9rem; color:var(--muted)}
 
     /* Progress */
-    .progress{display:flex; gap:.5rem; align-items:center; margin-top:.5rem}
-    .step{flex:1; background:var(--glass); padding:.45rem .6rem; border-radius:8px; text-align:center; font-weight:600; color:var(--muted);}
+    .progress{display:flex; gap:.5rem; align-items:center; margin-top:.5rem; overflow-x:auto; padding-bottom:.25rem} /* erlauben horizontales Scrollen bei sehr kleinen Bildschirmen */
+    .step{flex:0 1 auto; min-width:68px; background:var(--glass); padding:.45rem .6rem; border-radius:8px; text-align:center; font-weight:600; color:var(--muted);} /* feste Mindestbreite, damit 1–5 besser sichtbar */
     .step.active{background:linear-gradient(90deg,var(--primary), #2e6fb8); color:white}
 
     /* Controls */
