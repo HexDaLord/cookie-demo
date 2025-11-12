@@ -135,6 +135,7 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      min-height: 600px;
     }
 
     section {
@@ -962,7 +963,7 @@
     }
 
     function scrollToSection(stepNumber) {
-        adjustContentHeight(); // <-- sicherstellen, dass genügend Höhe vorhanden ist
+        setContentMinHeight(); // <-- sicherstellen, dass genügend Höhe vorhanden ist
 
         const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
         const progressCard = document.querySelector('.sidebar .card:first-child');
@@ -984,33 +985,41 @@
         }
     }
 
-    function adjustContentHeight() {
-        const main = document.querySelector('main');
-        const sidebar = document.querySelector('.sidebar .card:first-child'); // Step-by-Step Card
+    // function adjustContentHeight() {
+    //     const main = document.querySelector('main');
+    //     const sidebar = document.querySelector('.sidebar .card:first-child'); // Step-by-Step Card
+    //     const content = document.querySelector('section.content');
+
+    //     if (!main || !sidebar || !content) return;
+
+    //     // Sidebar-Höhe + Abstand nach unten
+    //     const sidebarRect = sidebar.getBoundingClientRect();
+    //     const sidebarHeight = sidebarRect.height;
+
+    //     // Berechne bisherige Content-Höhe
+    //     const contentHeight = content.scrollHeight;
+
+    //     // Benötigte Mindesthöhe, damit letzte Section auf Sidebar-Höhe kommt
+    //     const requiredHeight = sidebarHeight;
+
+    //     if (contentHeight < requiredHeight) {
+    //         content.style.minHeight = requiredHeight + 'px';
+    //     } else {
+    //         content.style.minHeight = 'auto';
+    //     }
+    // }
+    
+    function setContentMinHeight() {
+        const sidebar = document.querySelector('.sidebar .card:first-child');
         const content = document.querySelector('section.content');
-
-        if (!main || !sidebar || !content) return;
-
-        // Sidebar-Höhe + Abstand nach unten
-        const sidebarRect = sidebar.getBoundingClientRect();
-        const sidebarHeight = sidebarRect.height;
-
-        // Berechne bisherige Content-Höhe
-        const contentHeight = content.scrollHeight;
-
-        // Benötigte Mindesthöhe, damit letzte Section auf Sidebar-Höhe kommt
-        const requiredHeight = sidebarHeight;
-
-        if (contentHeight < requiredHeight) {
-            content.style.minHeight = requiredHeight + 'px';
-        } else {
-            content.style.minHeight = 'auto';
+        if (sidebar && content) {
+            content.style.minHeight = sidebar.offsetHeight + 'px';
         }
     }
 
     // Event-Listener
-    window.addEventListener('resize', adjustContentHeight);
-    window.addEventListener('load', adjustContentHeight);
+    window.addEventListener('resize', setContentMinHeight);
+    window.addEventListener('load', setContentMinHeight);
 
     /* --------------------- Small actions -------------------- */
     function clearAllCookies() {
