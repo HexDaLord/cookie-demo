@@ -986,26 +986,31 @@
 
     function adjustContentHeight() {
         const main = document.querySelector('main');
-        const sidebar = document.querySelector('.sidebar .card:first-child'); // Schritt-für-Schritt-Padlet
-        const lastSection = document.querySelector('section.content section.card:last-child');
+        const sidebar = document.querySelector('.sidebar .card:first-child'); // Step-by-Step Card
+        const content = document.querySelector('section.content');
 
-        if (!main || !sidebar || !lastSection) return;
+        if (!main || !sidebar || !content) return;
 
+        // Sidebar-Höhe + Abstand nach unten
         const sidebarRect = sidebar.getBoundingClientRect();
-        const sidebarTop = sidebarRect.top + window.scrollY; // Position der progressCard relativ zum Dokument
         const sidebarHeight = sidebarRect.height;
 
-        const lastSectionBottom = lastSection.getBoundingClientRect().top + lastSection.getBoundingClientRect().height + window.scrollY;
+        // Berechne bisherige Content-Höhe
+        const contentHeight = content.scrollHeight;
 
-        // Benötigte Mindesthöhe des main-Containers
-        window.addEventListener('resize', adjustContentHeight);
-        window.addEventListener('load', adjustContentHeight);
+        // Benötigte Mindesthöhe, damit letzte Section auf Sidebar-Höhe kommt
+        const requiredHeight = sidebarHeight;
 
-        if (main.scrollHeight < requiredHeight) {
-            main.style.minHeight = requiredHeight + 'px';
+        if (contentHeight < requiredHeight) {
+            content.style.minHeight = requiredHeight + 'px';
+        } else {
+            content.style.minHeight = 'auto';
         }
     }
 
+    // Event-Listener
+    window.addEventListener('resize', adjustContentHeight);
+    window.addEventListener('load', adjustContentHeight);
 
     /* --------------------- Small actions -------------------- */
     function clearAllCookies() {
@@ -1032,10 +1037,6 @@
         checkAndUnlockSteps(); 
       }
     }
-
-    window.addEventListener('resize', adjustContentHeight);
-    window.addEventListener('load', adjustContentHeight);
-
 
     /* --------------------- Init -------------------- */
     function init() {
