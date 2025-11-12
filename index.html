@@ -963,8 +963,15 @@
 
     function scrollToSection(stepNumber) {
         const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
-        if (section) {
-            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const sidebar = document.querySelector('.sidebar'); // Das Sidebar-Element
+    
+        if (section && sidebar) {
+            const scrollTarget = section.offsetTop - sidebar.offsetTop;
+
+            window.scrollTo({
+                top: scrollTarget,
+                behavior: 'smooth'
+            });
         }
     }
 
