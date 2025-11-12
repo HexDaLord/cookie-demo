@@ -144,6 +144,12 @@
       box-shadow: 0 6px 20px var(--color-shadow-light);
     }
 
+    section.card.locked {
+      opacity: 0.4;
+      pointer-events: none;
+      filter: grayscale(0.4);
+    }
+
     .info {
       background: var(--gradient-info);
       padding: 0.6rem;
@@ -886,15 +892,25 @@
     }
 
     function unlockStep(n) {
+      // Sidebar-Steps
       document.querySelectorAll('.step').forEach(step => {
         const stepNum = Number(step.getAttribute('data-step'));
-        // Alles bis einschließlich n ist aktivierbar
         if (stepNum <= n) {
           step.style.pointerEvents = 'auto';
           step.style.opacity = '1';
         } else {
           step.style.pointerEvents = 'none';
           step.style.opacity = '0.4';
+        }
+      });
+
+      // Content-Sektionen
+      document.querySelectorAll('section.card[data-step]').forEach(sec => {
+        const stepNum = Number(sec.getAttribute('data-step'));
+        if (stepNum <= n) {
+          sec.classList.remove('locked');
+        } else {
+          sec.classList.add('locked');
         }
       });
     }
@@ -939,7 +955,7 @@
           hideAdBanner();
       }
 
-      unlockStep(1);
+      unlockStep(2);
     }
 
     document.addEventListener('DOMContentLoaded', init);
