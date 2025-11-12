@@ -284,24 +284,19 @@
     /*  Ad Banner specific styles            */
     /* ------------------------------------- */
     #ad-banner {
-      display: none; /* Standardmäßig versteckt */
-      position: absolute;
-      top: 1.25rem; /* Oben bündig mit main-Inhalt */
-      right: 1rem; /* Rechts außerhalb des main-Inhalts */
-      width: 280px; /* Feste Breite für das Banner */
+      display: none;
+      width: 100%;
       background: var(--color-card);
       border-radius: 12px;
       box-shadow: 0 6px 20px var(--color-shadow);
       padding: 0.75rem;
       text-align: center;
-      z-index: 1000; /* Sicherstellen, dass es über anderem Inhalt liegt */
-      transform: translateX(100%); /* Verschiebt es ganz nach rechts aus dem Sichtfeld */
-      transition: transform 0.3s ease-out; /* Animation für das Einblenden */
+      margin-top: 1rem;
     }
 
     #ad-banner.active {
         display: block; /* Anzeigen, wenn aktiv */
-        transform: translateX(0); /* Zurück an die Position bewegen */
+        animation: fadeIn 0.3s ease-out;
     }
 
     #ad-banner h4 {
@@ -320,6 +315,11 @@
     #ad-banner p {
         font-size: 0.85rem;
         color: var(--color-text-muted);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     /* ------------------------------------- */
@@ -503,7 +503,7 @@
             </div>
             <div style="margin-top:.5rem" class="muted">Tracking-Status:</div>
             <pre id="tracking-info">Tracking nicht gesetzt.</pre>
-            <div id="ad-banner" class="card" style="display:none; margin-top:1rem;">
+            <div id="ad-banner" class="card">
               <h4>Angebot nur für dich!</h4>
               <img id="ad-image" src="" alt="Werbebild">
               <p id="ad-text"></p>
@@ -773,7 +773,7 @@
             img.src = content.image;
             img.alt = content.alt;
             text.textContent = content.text;
-            banner.style.display = 'block';
+            banner.classList.add('active');
         } else {
             hideAdBanner();
         }
@@ -784,7 +784,7 @@
      */
     function hideAdBanner() {
         const banner = document.getElementById('ad-banner');
-        banner.style.display = 'none';
+        banner.classList.remove('active');
         // Optional: Inhalt leeren, wenn es ausgeblendet ist
         document.getElementById('ad-image').src = '';
         //document.getElementById('ad-image').alt = '';
@@ -938,7 +938,8 @@
           document.getElementById('tracking-info').textContent = 'Tracking nicht gesetzt.';
           hideAdBanner();
       }
-      unlockStep(n);
+
+      unlockStep(1);
     }
 
     document.addEventListener('DOMContentLoaded', init);
