@@ -111,8 +111,9 @@
     }
 
     .layout {
+      /* Angepasst: Sidebar etwas breiter, um die Schritte auf eine Zeile zu bringen */
+      grid-template-columns: 450px 1fr;
       display: grid;
-      grid-template-columns: 380px 1fr; /* Sidebar breiter für mehr Platz */
       gap: 1rem;
     }
 
@@ -164,22 +165,23 @@
     /* ------------------------------------- */
     .progress {
       display: flex;
-      gap: 0.5rem; /* Konsistenterer Abstand */
+      gap: 0.5rem;
       align-items: center;
       margin-top: 0.5rem;
-      overflow-x: auto;
+      overflow-x: auto; /* Beibehalten für sehr kleine Bildschirme */
       padding-bottom: 0.25rem;
     }
     .step {
-      flex: 0 0 auto; /* Keine Schrumpfung oder Wachsen, feste Basisbreite */
-      min-width: 68px;
+      /* Angepasst: Flexiblere Breite für Steps, um Scrollen zu vermeiden */
+      flex: 1 1 auto; /* Grow and shrink, but maintain auto width */
+      min-width: 0; /* Erlaubt Schrumpfen unter den Standardwert, wenn nötig */
       background: var(--color-glass);
       padding: 0.45rem 0.6rem;
       border-radius: 8px;
       text-align: center;
       font-weight: 600;
       color: var(--color-text-muted);
-      cursor: pointer; /* Signalisiert, dass Schritte klickbar sein könnten */
+      cursor: pointer;
     }
     .step.active {
       background: var(--gradient-header);
@@ -220,17 +222,17 @@
       display: flex;
       gap: 0.5rem;
       margin-top: 0.6rem;
-      flex-wrap: wrap; /* Damit es auf kleinen Bildschirmen umbricht */
+      flex-wrap: wrap;
     }
     input[type=text],
     input[type=password] {
       flex: 1;
-      min-width: 150px; /* Mindestbreite für Eingabefelder */
+      min-width: 150px;
       padding: 0.5rem 0.6rem;
       border-radius: 8px;
       border: 1px solid var(--color-border);
       font-size: 0.95rem;
-      background: var(--color-card); /* Ensure background is set for dark mode */
+      background: var(--color-card);
       color: var(--color-text-muted);
     }
     input[type=text]:focus,
@@ -288,10 +290,10 @@
         position: static;
       }
       .form-row {
-        flex-direction: column; /* Stapeln der Elemente im Formular auf kleinen Bildschirmen */
+        flex-direction: column;
       }
       input[type=text], input[type=password] {
-          width: 100%; /* Volle Breite für Inputs */
+          width: 100%;
           min-width: unset;
       }
     }
@@ -320,10 +322,10 @@
           <div class="muted">Führe die Schritte durch, um Cookies & Tracking zu verstehen.</div>
           <div class="progress" id="progress">
             <div class="step" data-step="1">1. Cookies</div>
-            <div class="step" data-step="2">2. Gerät</div>
-            <div class="step" data-step="3">3. Standort</div>
-            <div class="step" data-step="4">4. Tracking</div>
-            <div class="step" data-step="5">5. Login</div>
+            <div class="step" data-step="2">2. Login</div>
+            <div class="step" data-step="3">3. Gerät</div>
+            <div class="step" data-step="4">4. Standort</div>
+            <div class="step" data-step="5">5. Tracking</div>
           </div>
 
           <div style="margin-top:.8rem" class="muted">Schnellaktionen</div>
@@ -352,16 +354,35 @@
       <section class="content">
         <section class="card">
           <h3>🍪 Cookies – persönliche Begrüßung & Demo</h3>
-          <div class="info">Diese Sektion zeigt wie persistent gespeicherte Cookies (z. B. Name) und Session-Cookies (Login-Sitzung) funktionieren. Es werden <b>keine</b> echten Tracker gesetzt.</div>
+          <div class="info">Diese Sektion zeigt wie persistent gespeicherte Cookies (z. B. Theme-Präferenz) und Session-Cookies (Login-Sitzung) funktionieren. Deine Begrüßung wird durch den Login-Status gesteuert. Es werden <b>keine</b> echten Tracker gesetzt.</div>
+
+          <div style="margin-top:.6rem">
+            <div style="margin-top:.5rem" class="muted">Aktuelle Begrüßung:</div>
+            <pre id="greeting">Hallo, Schüler!</pre>
+          </div>
+        </section>
+
+        <!-- NEU: Mini-Register / Login vor Gerätedaten -->
+        <section class="card">
+          <h3>🔐 Mini-Register / Login (lokal & ohne Server)</h3>
+          <div class="info">Registrieren & Anmelden werden nur lokal simuliert. Registrierte Daten werden im <b>localStorage</b> gespeichert. Die Login-Sitzung demonstriert einen Session-Cookie.</div>
 
           <div style="margin-top:.6rem">
             <div class="form-row">
-              <input id="name-input" type="text" placeholder="Name (z. B. Anna)" />
-              <button onclick="saveNamePersistent()">Als Persistent speichern</button>
-              <button onclick="saveNameSession()" class="btn-ghost">Als Session speichern</button>
+              <input id="reg-username" type="text" placeholder="Benutzername" />
+              <input id="reg-password" type="password" placeholder="Passwort" />
+              <button onclick="registerUser()">Registrieren</button>
             </div>
-            <div style="margin-top:.5rem" class="muted">Aktuelle Begrüßung:</div>
-            <pre id="greeting">Hallo, Schüler!</pre>
+
+            <div class="form-row" style="margin-top:.5rem">
+              <input id="login-username" type="text" placeholder="Benutzername" />
+              <input id="login-password" type="password" placeholder="Passwort" />
+              <button onclick="loginUser()">Login</button>
+              <button onclick="logoutUser()" class="btn-ghost">Logout</button>
+            </div>
+
+            <div style="margin-top:.6rem" class="muted">Session-Info:</div>
+            <pre id="session-info">Nicht eingeloggt.</pre>
           </div>
         </section>
 
@@ -395,29 +416,6 @@
             <button onclick="clearTracking()" class="btn-ghost">Tracking löschen</button>
           </div>
           <pre id="tracking-info">Tracking nicht gesetzt.</pre>
-        </section>
-
-        <section class="card">
-          <h3>🔐 Mini-Register / Login (lokal & ohne Server)</h3>
-          <div class="info">Registrieren & Anmelden werden nur lokal simuliert. Registrierte Daten werden im <b>localStorage</b> gespeichert. Die Login-Sitzung demonstriert einen Session-Cookie.</div>
-
-          <div style="margin-top:.6rem">
-            <div class="form-row">
-              <input id="reg-username" type="text" placeholder="Benutzername" />
-              <input id="reg-password" type="password" placeholder="Passwort" />
-              <button onclick="registerUser()">Registrieren</button>
-            </div>
-
-            <div class="form-row" style="margin-top:.5rem">
-              <input id="login-username" type="text" placeholder="Benutzername" />
-              <input id="login-password" type="password" placeholder="Passwort" />
-              <button onclick="loginUser()">Login</button>
-              <button onclick="logoutUser()" class="btn-ghost">Logout</button>
-            </div>
-
-            <div style="margin-top:.6rem" class="muted">Session-Info:</div>
-            <pre id="session-info">Nicht eingeloggt.</pre>
-          </div>
         </section>
 
         <footer>© Unterrichts-Demo – Keine Daten werden an Server übertragen.</footer>
@@ -469,11 +467,10 @@
      */
     function renderCookieTable() {
       const box = document.getElementById('cookie-table');
-      // Cookies werden direkt von document.cookie geparst, da clearAllCookies jetzt auch darauf aufbaut
       const cookies = document.cookie
         .split(';')
         .map(c => c.trim())
-        .filter(Boolean); // Leere Strings entfernen
+        .filter(Boolean);
 
       if (!cookies.length) {
         box.innerHTML = '<div class="muted">Keine Cookies gesetzt.</div>';
@@ -487,7 +484,7 @@
       });
       html += '</tbody></table>';
       box.innerHTML = html;
-      updateGreeting(); // Begrüßung aktualisieren, falls der Benutzername-Cookie geändert wurde
+      updateGreeting();
     }
 
     /**
@@ -496,37 +493,29 @@
     function updateGreeting() {
       const greetingElement = document.getElementById('greeting');
       const welcomeTextElement = document.getElementById('welcome-text');
-      const name = getCookie('username') || sessionStorage.getItem('username'); // Bevorzugt persistent, dann session
+      // 'username' kommt jetzt nur noch aus sessionStorage (durch Login)
+      const name = sessionStorage.getItem('username');
 
       greetingElement.textContent = name ? `Hallo, ${name}!` : 'Hallo, Schüler!';
       welcomeTextElement.textContent = name ? `Angemeldet: ${name}` : 'Willkommen!';
     }
 
     /* --------------------- Persistent vs Session Demo -------------------- */
-    function saveNamePersistent() {
-      const name = document.getElementById('name-input').value.trim();
-      if (!name) return alert('Bitte Namen eingeben');
-      setCookie('username', name, 365); // Persistenter Cookie
-      updateGreeting();
-    }
-
-    function saveNameSession() {
-      const name = document.getElementById('name-input').value.trim();
-      if (!name) return alert('Bitte Namen eingeben');
-      sessionStorage.setItem('username', name); // SessionStorage für Demo
-      setCookie('session_demo', '1'); // Einfacher Session-Cookie, kein expires
-      updateGreeting();
-      renderCookieTable();
-    }
+    // Diese Funktionen nutzen jetzt keine direkte Namenseingabe mehr, sondern dienen zur Demonstration von Cookies
+    // saveNamePersistent() und saveNameSession() werden entfernt, da sie nicht mehr relevant sind
+    // oder könnten angepasst werden, um generische Daten zu speichern, wenn du das noch brauchst.
+    // Für die Begrüßung ist jetzt der Login-Status relevant.
 
     function setPersistentDemo() {
       setCookie('demo_persistent', 'persistentValue', 365);
       alert('Persistent Cookie "demo_persistent" gesetzt (läuft 365 Tage)');
+      markStep(1); // Markiere Schritt 1, da ein Cookie gesetzt wurde
     }
 
     function setSessionDemo() {
       setCookie('demo_session', 'tempValue'); // Session Cookie, kein expires
       alert('Session Cookie "demo_session" gesetzt (verschwindet beim Schließen des Tabs/Browsers)');
+      markStep(1); // Markiere Schritt 1, da ein Cookie gesetzt wurde
     }
 
     /* --------------------- Device info -------------------- */
@@ -543,7 +532,7 @@
       let text = '';
       for (const k in info) text += `• ${k}: ${info[k]}\n`;
       document.getElementById('device-info').textContent = text;
-      markStep(2);
+      markStep(3); // Angepasst für neue Reihenfolge
     }
 
     function clearDeviceInfo() {
@@ -579,10 +568,10 @@
 
         if (marker) marker.remove();
         marker = L.marker([lat, lon]).addTo(map).bindPopup('📍 Dein Standort').openPopup();
-        markStep(3);
+        markStep(4); // Angepasst für neue Reihenfolge
       }, err => {
         out.textContent = '⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt.';
-        mapDiv.style.display = 'none'; // Karte auch ausblenden, wenn abgelehnt
+        mapDiv.style.display = 'none';
       });
     }
 
@@ -594,7 +583,7 @@
         marker = null;
       }
       if (map) {
-        map.remove(); // Map-Instanz vollständig entfernen
+        map.remove();
         map = null;
       }
     }
@@ -604,7 +593,7 @@
       const id = Math.random().toString(36).slice(2, 10);
       setCookie('tracking_id', id, 90);
       document.getElementById('tracking-info').textContent = `Tracking gesetzt: ${id}`;
-      markStep(4);
+      markStep(5); // Angepasst für neue Reihenfolge
     }
 
     function simulateAd() {
@@ -614,7 +603,7 @@
       const category = prompt('Wähle eine Produktkategorie, um Targeting zu simulieren (z.B. Schuhe):', 'Schuhe');
       if (!category) return;
 
-      localStorage.setItem('last_category', category); // Speichert die letzte Kategorie per localStorage (simuliertes Cross-Site-Profil)
+      localStorage.setItem('last_category', category);
       alert(`Simulierter Besuch: ${category}. Beim nächsten Besuch könnte eine Ad für ${category} erscheinen.`);
       document.getElementById('tracking-info').textContent = `Tracking aktiv (${id}). Letzte Kategorie: ${category}`;
     }
@@ -623,7 +612,7 @@
       deleteCookie('tracking_id');
       localStorage.removeItem('last_category');
       document.getElementById('tracking-info').textContent = 'Tracking nicht gesetzt.';
-      renderCookieTable(); // Aktualisiert die Cookie-Tabelle
+      renderCookieTable();
     }
 
     function simulateVisit() {
@@ -637,10 +626,10 @@
       } else {
         alert('Kein Tracking vorhanden — Besucher erscheint neu.');
       }
-      // Schritte markieren, wenn Daten vorhanden sind
-      if (id) markStep(4);
-      if (getCookie('username') || sessionStorage.getItem('username')) markStep(5);
-      if (getCookie('theme_pref')) markStep(1); // Theme-Cookie ist auch ein Cookie
+      // Schritte markieren, wenn Daten vorhanden sind (angepasste Nummern)
+      if (id) markStep(5); // Tracking
+      if (sessionStorage.getItem('username')) markStep(2); // Login
+      if (getCookie('theme_pref')) markStep(1); // Cookies (Theme-Cookie)
     }
 
     /* --------------------- Mini Register / Login -------------------- */
@@ -661,7 +650,7 @@
       localStorage.setItem('demo_users', JSON.stringify(users));
       alert('Registrierung erfolgreich (lokal). Du kannst dich jetzt einloggen.');
 
-      usernameInput.value = ''; // Felder nach Registrierung leeren
+      usernameInput.value = '';
       passwordInput.value = '';
     }
 
@@ -680,9 +669,9 @@
       sessionStorage.setItem('username', u); // Auch in sessionStorage für UI
       updateSessionInfo();
       renderCookieTable();
-      markStep(5);
+      markStep(2); // Angepasst für neue Reihenfolge
 
-      usernameInput.value = ''; // Felder nach Login leeren
+      usernameInput.value = '';
       passwordInput.value = '';
     }
 
@@ -708,7 +697,8 @@
       const nextTheme = theme === 'light' ? 'dark' : 'light';
       root.setAttribute('data-theme', nextTheme);
       themeToggle.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
-      setCookie('theme_pref', nextTheme, 365); // Speichert die Theme-Präferenz
+      setCookie('theme_pref', nextTheme, 365);
+      markStep(1); // Markiere Schritt 1, da ein Cookie gesetzt wurde
     });
 
     function applySavedTheme() {
@@ -726,33 +716,22 @@
     }
 
     /* --------------------- Small actions -------------------- */
-    // Diese Funktion ist redundant, da renderCookieTable() bereits als onclick-Handler gesetzt werden kann
-    // function showAllCookies() {
-    //   renderCookieTable();
-    //   alert('Cookies wurden im Sidebar aktualisiert.');
-    // }
-
     function clearAllCookies() {
       if (confirm('Alle Cookies, LocalStorage und SessionStorage löschen? Dies löscht auch Login-Sessions und Tracking-Daten.')) {
-        // Alle Cookies löschen
         document.cookie.split(';').forEach(c => {
           const name = c.split('=')[0].trim();
-          if (name) deleteCookie(name); // Nutzt die deleteCookie Funktion, die auch die Tabelle aktualisiert
+          if (name) deleteCookie(name);
         });
 
-        // Alle LocalStorage-Einträge löschen
         localStorage.clear();
-
-        // Alle SessionStorage-Einträge löschen
         sessionStorage.clear();
 
-        // UI-Elemente aktualisieren
         updateSessionInfo();
         updateGreeting();
         document.getElementById('device-info').textContent = 'Noch keine Daten angezeigt.';
         document.getElementById('tracking-info').textContent = 'Tracking nicht gesetzt.';
-        clearLocation(); // Stellt sicher, dass die Karte ausgeblendet und resettet wird
-        renderCookieTable(); // Stellt sicher, dass die Cookie-Tabelle leer ist
+        clearLocation();
+        renderCookieTable();
         alert('Alle Daten gelöscht.');
       }
     }
@@ -763,13 +742,9 @@
       applySavedTheme();
       updateSessionInfo();
       updateGreeting();
-
-      // Felder für Demo vorausfüllen
-      const storedName = getCookie('username');
-      if (storedName) document.getElementById('name-input').value = storedName;
+      // Der "name-input" und "storedName" sind nicht mehr nötig, da der Login die Begrüßung steuert
     }
 
-    // Startet die Initialisierungsfunktion, wenn das DOM geladen ist.
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
