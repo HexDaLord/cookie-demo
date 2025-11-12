@@ -378,6 +378,13 @@
           transform: translateX(0); /* Sicherstellen, dass keine Verschiebung stattfindet */
       }
     }
+
+    section.card.locked {
+      pointer-events: none; /* Deaktiviert Klicks auf alle Elemente innerhalb */
+      opacity: 0.5; /* Macht es visuell "ausgegraut" */
+      filter: grayscale(100%); /* Optional: Macht es schwarz-weiß */
+      transition: opacity 0.3s ease, filter 0.3s ease;
+    }
   </style>
 </head>
 <body data-theme="light">
@@ -524,7 +531,8 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     /* ----------------------------- Helpers ----------------------------- */
-    let maxUnlockedStep = 2;
+    let maxUnlockedStep = 1;
+    let currentActiveStep = 1;
     /**
      * Setzt einen Cookie. Wenn `days` null oder undefined ist, wird es ein Session-Cookie.
      * @param {string} name - Der Name des Cookies.
@@ -540,6 +548,7 @@
       }
       document.cookie = cookieString;
       renderCookieTable(); // Tabelle nach jeder Cookie-Änderung aktualisieren
+      checkAndUnlockSteps(); 
     }
 
     /**
@@ -559,6 +568,7 @@
     function deleteCookie(name) {
       document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
       renderCookieTable(); // Tabelle nach jeder Cookie-Änderung aktualisieren
+      checkAndUnlockSteps();
     }
 
     /**
@@ -602,13 +612,11 @@
     function setPersistentDemo() {
       setCookie('demo_persistent', 'persistentValue', 365);
       alert('Persistent Cookie "demo_persistent" gesetzt (läuft 365 Tage)');
-      markStep(1);
     }
 
     function setSessionDemo() {
       setCookie('demo_session', 'tempValue');
       alert('Session Cookie "demo_session" gesetzt (verschwindet beim Schließen des Tabs/Browsers)');
-      markStep(1);
     }
 
     /* --------------------- Device info -------------------- */
@@ -625,11 +633,12 @@
       let text = '';
       for (const k in info) text += `• ${k}: ${info[k]}\n`;
       document.getElementById('device-info').textContent = text;
-      markStep(3);
+      checkAndUnlockSteps();
     }
 
     function clearDeviceInfo() {
       document.getElementById('device-info').textContent = 'Noch keine Daten angezeigt.';
+      checkAndUnlockSteps();
     }
 
     /* --------------------- Geolocation + Leaflet -------------------- */
@@ -661,10 +670,11 @@
 
         if (marker) marker.remove();
         marker = L.marker([lat, lon]).addTo(map).bindPopup('📍 Dein Standort').openPopup();
-        markStep(4);
+        checkAndUnlockSteps();
       }, err => {
         out.textContent = '⚠️ Standort konnte nicht ermittelt werden oder wurde abgelehnt.';
         mapDiv.style.display = 'none';
+        checkAndUnlockSteps();
       });
     }
 
@@ -679,6 +689,7 @@
         map.remove();
         map = null;
       }
+      checkAndUnlockSteps();
     }
 
     /* --------------------- Tracking Simulation -------------------- */
@@ -715,7 +726,6 @@
       const id = Math.random().toString(36).slice(2, 10);
       setCookie('tracking_id', id, 90);
       document.getElementById('tracking-info').textContent = `Tracking gesetzt: ${id}`;
-      markStep(5);
     }
 
     function simulateAd() {
@@ -734,6 +744,7 @@
       document.getElementById('tracking-info').textContent = `Tracking aktiv (${id}). Letzte Kategorie: ${selectedCategory}`;
 
       showAdBanner(selectedCategory); // Zeige das Banner sofort nach der Auswahl
+      checkAndUnlockSteps();
     }
 
     function clearTracking() {
@@ -742,6 +753,7 @@
       document.getElementById('tracking-info').textContent = 'Tracking nicht gesetzt.';
       renderCookieTable();
       hideAdBanner(); // Banner beim Löschen des Trackings ausblenden
+      checkAndUnlockSteps();
     }
 
     function simulateVisit() {
@@ -759,9 +771,7 @@
         hideAdBanner();
       }
       // Schritte markieren, wenn Daten vorhanden sind (angepasste Nummern)
-      if (id) markStep(5);
-      if (sessionStorage.getItem('username')) markStep(2);
-      if (getCookie('theme_pref')) markStep(1);
+      checkAndUnlockSteps();
     }
 
     /**
@@ -834,7 +844,8 @@
       sessionStorage.setItem('username', u);
       updateSessionInfo();
       renderCookieTable();
-      markStep(2);
+      alert('Du bist jetzt eingeloggt.');
+      checkAndUnlockSteps();
 
       usernameInput.value = '';
       passwordInput.value = '';
@@ -846,6 +857,7 @@
       updateSessionInfo();
       renderCookieTable();
       alert('Du wurdest ausgeloggt.');
+      checkAndUnlockSteps();
     }
 
     function updateSessionInfo() {
@@ -872,7 +884,6 @@
       root.setAttribute('data-theme', nextTheme);
       themeToggle.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
       setCookie('theme_pref', nextTheme, 365);
-      markStep(maxUnlockedStep);
     });
 
     function applySavedTheme() {
@@ -883,38 +894,74 @@
       }
     }
 
-    function markStep(n) {
-      // Aktiven Step visuell markieren
-      document.querySelectorAll('.step').forEach(el => {
-        el.classList.toggle('active', Number(el.getAttribute('data-step')) === n);
-      });
-
-      // Wenn ein höherer Schritt erreicht wird, Fortschritt merken
-      if (n > maxUnlockedStep) maxUnlockedStep = n;
-
-      // Nur bis zum höchsten freigeschalteten Schritt entsperren
-      unlockStep(maxUnlockedStep);
+    function markActiveStep(stepNumber) {
+        document.querySelectorAll('.step').forEach(el => {
+            el.classList.toggle('active', Number(el.getAttribute('data-step')) === stepNumber);
+        });
+        currentActiveStep = stepNumber; // Speichert den aktuell aktiven Schritt
     }
 
-    function unlockStep(n) {
-      // Sidebar-Schritte aktivieren/deaktivieren
+    function checkAndUnlockSteps() {
+      // Schritt 1: Cookies - immer aktiv.
+      // Er ist "abgeschlossen", wenn irgendein Demo-Cookie gesetzt wurde.
+      if (getCookie('theme_pref') || getCookie('demo_persistent') || getCookie('demo_session')) {
+        if (maxUnlockedStep < 2) maxUnlockedStep = 2; // Unlock Step 2 (Login)
+      }
+
+      // Schritt 2: Login - abgeschlossen, wenn der Benutzer eingeloggt ist (sessionStorage 'username')
+      if (sessionStorage.getItem('username')) {
+        if (maxUnlockedStep < 3) maxUnlockedStep = 3; // Unlock Step 3 (Gerät)
+      } else {
+        // Wenn ausgeloggt, dann maxUnlockedStep auf 2 zurücksetzen, aber nicht unter 1
+        if (maxUnlockedStep >= 3) {
+          maxUnlockedStep = 2;
+        }
+      }
+
+      if (document.getElementById('device-info').textContent !== 'Noch keine Daten angezeigt.') {
+        if (maxUnlockedStep < 4) maxUnlockedStep = 4; // Unlock Step 4 (Standort)
+      }
+
+      if (document.getElementById('location-info').textContent.startsWith('✅ Standort:')) {
+        if (maxUnlockedStep < 5) maxUnlockedStep = 5; // Unlock Step 5 (Tracking)
+      }
+
+      unlockStepsUI(maxUnlockedStep);
+      if (currentActiveStep > maxUnlockedStep || !document.querySelector(`.step[data-step="${currentActiveStep}"]`)) {
+          markActiveStep(maxUnlockedStep);
+      } else {
+          markActiveStep(currentActiveStep); // Ansonsten den aktuellen aktiven Schritt beibehalten
+      }
+    }
+
+    function unlockStepsUI(unlockedCount) {
       document.querySelectorAll('.step').forEach(step => {
         const stepNum = Number(step.getAttribute('data-step'));
-        step.style.pointerEvents = stepNum <= n ? 'auto' : 'none';
-        step.style.opacity = stepNum <= n ? '1' : '0.4';
-      });
+        // Die Sidebar-Schritte sind klickbar und sichtbar bis zum freigeschalteten Level
+        step.style.pointerEvents = stepNum <= unlockedCount ? 'auto' : 'none';
+        step.style.opacity = stepNum <= unlockedCount ? '1' : '0.4';
 
-      // Content-Sektionen sichtbar machen
-      document.querySelectorAll('section.card[data-step]').forEach(sec => {
-        const stepNum = Number(sec.getAttribute('data-step'));
-
-        // Sichtbar: bis einschließlich n
-        if (stepNum <= n) {
-          sec.classList.remove('locked');
-        } else {
-          sec.classList.add('locked');
+        // Event-Listener für Sidebar-Schritte hinzufügen, wenn noch nicht geschehen
+        if (stepNum <= unlockedCount && !step.dataset.listenerAdded) {
+          step.addEventListener('click', () => {
+            markActiveStep(stepNum);
+            scrollToSection(stepNum);
+          });
+          step.dataset.listenerAdded = 'true'; // Markieren, dass Listener hinzugefügt wurde
         }
       });
+
+      document.querySelectorAll('section.card[data-step]').forEach(sec => {
+        const stepNum = Number(sec.getAttribute('data-step'));
+        sec.classList.toggle('locked', stepNum > unlockedCount);
+      });
+    }
+
+    function scrollToSection(stepNumber) {
+        const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
 
@@ -937,6 +984,9 @@
         renderCookieTable();
         hideAdBanner(); // Banner auch beim Leeren aller Daten ausblenden
         alert('Alle Daten gelöscht.');
+        maxUnlockedStep = 1;
+        currentActiveStep = 1;
+        checkAndUnlockSteps(); 
       }
     }
 
@@ -947,9 +997,8 @@
       updateSessionInfo();
       updateGreeting();
 
-      // Beim Initialisieren prüfen, ob Tracking-Daten für ein Banner vorhanden sind
       const lastCategory = localStorage.getItem('last_category');
-      if (lastCategory) {
+      if (lastCategory && getCookie('tracking_id')) {
           document.getElementById('tracking-info').textContent = `Tracking aktiv (ID: ${getCookie('tracking_id')}). Letzte Kategorie: ${lastCategory}`;
           showAdBanner(lastCategory);
       } else {
@@ -957,7 +1006,8 @@
           hideAdBanner();
       }
 
-      unlockStep(maxUnlockedStep);
+      checkAndUnlockSteps();
+      markActiveStep(1);
     }
 
     document.addEventListener('DOMContentLoaded', init);
