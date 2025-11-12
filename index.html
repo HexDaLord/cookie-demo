@@ -962,33 +962,48 @@
     }
 
     function scrollToSection(stepNumber) {
-      const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
-      const progressCard = document.querySelector('.sidebar .card:first-child'); // Das "Schritt-für-Schritt" Padlet
+        adjustContentHeight(); // <-- sicherstellen, dass genügend Höhe vorhanden ist
 
-      if (section && progressCard) {
         const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
-        const progressCard = document.querySelector('.sidebar .card:first-child'); // Das "Schritt-für-Schritt"-Padlet
+        const progressCard = document.querySelector('.sidebar .card:first-child');
 
         if (section && progressCard) {
-            // Höhe des Viewports berücksichtigen
-            const viewportTop = window.scrollY;
-            
-            // Position der progressCard relativ zum Viewport
             const progressRect = progressCard.getBoundingClientRect();
-            const progressTopRelativeToViewport = progressRect.top;
-
-            // Aktuelle Position der Section relativ zum Dokument
             const sectionTop = section.getBoundingClientRect().top + window.scrollY;
 
-            // Berechne, um wie viel die Seite scrollen muss, damit die obere Kante der Section auf derselben Höhe wie die progressCard ist
-            const scrollTarget = sectionTop - progressTopRelativeToViewport;
+            let scrollTarget = sectionTop - progressRect.top;
+
+            // maximaler Scrollwert (Dokumenthöhe minus Viewporthöhe)
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            if (scrollTarget > maxScroll) scrollTarget = maxScroll;
 
             window.scrollTo({
                 top: scrollTarget,
                 behavior: 'smooth'
             });
         }
-      }
+    }
+
+    function adjustContentHeight() {
+        const main = document.querySelector('main');
+        const sidebar = document.querySelector('.sidebar .card:first-child'); // Schritt-für-Schritt-Padlet
+        const lastSection = document.querySelector('section.content section.card:last-child');
+
+        if (!main || !sidebar || !lastSection) return;
+
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const sidebarTop = sidebarRect.top + window.scrollY; // Position der progressCard relativ zum Dokument
+        const sidebarHeight = sidebarRect.height;
+
+        const lastSectionBottom = lastSection.getBoundingClientRect().top + lastSection.getBoundingClientRect().height + window.scrollY;
+
+        // Benötigte Mindesthöhe des main-Containers
+        window.addEventListener('resize', adjustContentHeight);
+        window.addEventListener('load', adjustContentHeight);
+
+        if (main.scrollHeight < requiredHeight) {
+            main.style.minHeight = requiredHeight + 'px';
+        }
     }
 
 
@@ -1017,6 +1032,10 @@
         checkAndUnlockSteps(); 
       }
     }
+
+    window.addEventListener('resize', adjustContentHeight);
+    window.addEventListener('load', adjustContentHeight);
+
 
     /* --------------------- Init -------------------- */
     function init() {
