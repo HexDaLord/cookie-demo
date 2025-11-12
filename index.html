@@ -407,7 +407,7 @@
 
           <div style="margin-top:.8rem" class="muted">Schnellaktionen</div>
           <div class="controls">
-            <button onclick="renderCookieTable()">Cookies anzeigen</button>
+            <button onclick="toggleCookieTable()">Cookies anzeigen / verstecken</button>
             <button onclick="clearAllCookies()" class="btn-ghost">Alle löschen</button>
             <button onclick="simulateVisit()" class="btn-ghost">Seite neu laden (sim.)</button>
           </div>
@@ -429,7 +429,7 @@
       </aside>
 
       <section class="content">
-        <section class="card">
+        <section class="card" data-step="1">
           <h3>🍪 Cookies – persönliche Begrüßung & Demo</h3>
           <div class="info">Diese Sektion zeigt wie persistent gespeicherte Cookies (z. B. Theme-Präferenz) und Session-Cookies (Login-Sitzung) funktionieren. Deine Begrüßung wird durch den Login-Status gesteuert. Es werden <b>keine</b> echten Tracker gesetzt.</div>
 
@@ -439,7 +439,7 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card" data-step="2">
           <h3>🔐 Mini-Register / Login (lokal & ohne Server)</h3>
           <div class="info">Registrieren & Anmelden werden nur lokal simuliert. Registrierte Daten werden im <b>localStorage</b> gespeichert. Die Login-Sitzung demonstriert einen Session-Cookie.</div>
 
@@ -462,7 +462,7 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card" data-step="3">
           <h3>💻 Gerätedaten</h3>
           <div class="info">Technische Informationen, die Websites mit JavaScript auslesen können.</div>
           <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
@@ -472,7 +472,7 @@
           <pre id="device-info">Noch keine Daten angezeigt.</pre>
         </section>
 
-        <section class="card">
+        <section class="card" data-step="4">
           <h3>📍 Standort (nur mit Zustimmung)</h3>
           <div class="info">Wenn erlaubt, zeigt die Karte ungefähr, wo sich das Gerät befindet.</div>
           <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
@@ -483,7 +483,7 @@
           <div id="map" style="display:none"></div>
         </section>
 
-        <section class="card">
+        <section class="card" data-step="5">
           <h3>📢 Tracking-Simulation</h3>
           <div class="info">Simuliere ein Werbecookie (tracking_id) und beobachte, wie eine Seite dich bei einem erneuten Besuch "wiedererkennen" könnte. Wähle ein Interesse, um ein gezieltes Werbebanner zu simulieren.</div>
           <div style="margin-top:.6rem">
@@ -503,21 +503,18 @@
             </div>
             <div style="margin-top:.5rem" class="muted">Tracking-Status:</div>
             <pre id="tracking-info">Tracking nicht gesetzt.</pre>
+            <div id="ad-banner" class="card" style="display:none; margin-top:1rem;">
+              <h4>Angebot nur für dich!</h4>
+              <img id="ad-image" src="" alt="Werbebild">
+              <p id="ad-text"></p>
+              <button class="btn-ghost" onclick="hideAdBanner()">Schließen</button>
+            </div>
           </div>
         </section>
 
         <footer>© Unterrichts-Demo – Keine Daten werden an Server übertragen.</footer>
       </section>
     </div>
-
-    <!-- Neues Werbebanner-Element -->
-    <div id="ad-banner" class="card">
-        <h4>Angebot nur für dich!</h4>
-        <img id="ad-image" src="" alt="Werbebild">
-        <p id="ad-text"></p>
-        <button class="btn-ghost" onclick="hideAdBanner()">Schließen</button>
-    </div>
-
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -776,9 +773,9 @@
             img.src = content.image;
             img.alt = content.alt;
             text.textContent = content.text;
-            banner.classList.add('active'); // CSS-Klasse für Anzeige
+            banner.style.display = 'block';
         } else {
-            hideAdBanner(); // Wenn keine passende Kategorie, Banner ausblenden
+            hideAdBanner();
         }
     }
 
@@ -787,10 +784,10 @@
      */
     function hideAdBanner() {
         const banner = document.getElementById('ad-banner');
-        banner.classList.remove('active');
+        banner.style.display = 'none';
         // Optional: Inhalt leeren, wenn es ausgeblendet ist
         document.getElementById('ad-image').src = '';
-        document.getElementById('ad-image').alt = '';
+        //document.getElementById('ad-image').alt = '';
         document.getElementById('ad-text').textContent = '';
     }
 
@@ -852,6 +849,15 @@
       updateGreeting();
     }
 
+    // --- Cookies Übersicht ein- und ausklappbar ---
+    let cookiesVisible = true;
+
+    function toggleCookieTable() {
+      const box = document.getElementById('cookie-table');
+      cookiesVisible = !cookiesVisible;
+      box.style.display = cookiesVisible ? 'block' : 'none';
+    }
+
     /* --------------------- UI: Theme, Progress -------------------- */
     const themeToggle = document.getElementById('theme-toggle');
     themeToggle.addEventListener('click', () => {
@@ -876,7 +882,23 @@
       document.querySelectorAll('.step').forEach(el => {
         el.classList.toggle('active', Number(el.getAttribute('data-step')) === n);
       });
+      unlockStep(n);
     }
+
+    function unlockStep(n) {
+      document.querySelectorAll('.step').forEach(step => {
+        const stepNum = Number(step.getAttribute('data-step'));
+        // Alles bis einschließlich n ist aktivierbar
+        if (stepNum <= n) {
+          step.style.pointerEvents = 'auto';
+          step.style.opacity = '1';
+        } else {
+          step.style.pointerEvents = 'none';
+          step.style.opacity = '0.4';
+        }
+      });
+    }
+
 
     /* --------------------- Small actions -------------------- */
     function clearAllCookies() {
@@ -916,6 +938,7 @@
           document.getElementById('tracking-info').textContent = 'Tracking nicht gesetzt.';
           hideAdBanner();
       }
+      unlockStep(n);
     }
 
     document.addEventListener('DOMContentLoaded', init);
