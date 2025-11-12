@@ -145,9 +145,7 @@
     }
 
     section.card.locked {
-      opacity: 0.4;
-      pointer-events: none;
-      filter: grayscale(0.4);
+      display: none;
     }
 
     .info {
@@ -892,21 +890,18 @@
     }
 
     function unlockStep(n) {
-      // Sidebar-Steps
+      // Sidebar-Schritte aktivieren/deaktivieren
       document.querySelectorAll('.step').forEach(step => {
         const stepNum = Number(step.getAttribute('data-step'));
-        if (stepNum <= n) {
-          step.style.pointerEvents = 'auto';
-          step.style.opacity = '1';
-        } else {
-          step.style.pointerEvents = 'none';
-          step.style.opacity = '0.4';
-        }
+        step.style.pointerEvents = stepNum <= n ? 'auto' : 'none';
+        step.style.opacity = stepNum <= n ? '1' : '0.4';
       });
 
-      // Content-Sektionen
+      // Content-Sektionen sichtbar machen
       document.querySelectorAll('section.card[data-step]').forEach(sec => {
         const stepNum = Number(sec.getAttribute('data-step'));
+
+        // Sichtbar: bis einschließlich n
         if (stepNum <= n) {
           sec.classList.remove('locked');
         } else {
