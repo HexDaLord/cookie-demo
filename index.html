@@ -171,7 +171,7 @@
     }
 
     .content-spacer {
-      height: 1000px;  /* Höhe des Spacers, anpassen wie du willst */
+      height: 500px;  /* Höhe des Spacers, anpassen wie du willst */
       width: 100%;
     }
 
@@ -914,10 +914,8 @@
 
     function checkAndUnlockSteps() {
       // Schritt 1: Cookies - immer aktiv.
-      // Er ist "abgeschlossen", wenn irgendein Demo-Cookie gesetzt wurde.
-      if (getCookie('theme_pref') || getCookie('demo_persistent') || getCookie('demo_session')) {
-        if (maxUnlockedStep < 2) maxUnlockedStep = 2; // Unlock Step 2 (Login)
-      }
+      
+      if (maxUnlockedStep < 2) maxUnlockedStep = 2;
 
       // Schritt 2: Login - abgeschlossen, wenn der Benutzer eingeloggt ist (sessionStorage 'username')
       if (sessionStorage.getItem('username')) {
