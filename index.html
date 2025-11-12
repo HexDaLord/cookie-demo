@@ -963,13 +963,17 @@
 
     function scrollToSection(stepNumber) {
         const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
-        const sidebar = document.querySelector('.sidebar'); // Das Sidebar-Element
-    
-        if (section && sidebar) {
-            const scrollTarget = section.offsetTop - sidebar.offsetTop;
+        const progressCard = document.querySelector('.sidebar .card:first-child'); // Das "Schritt-für-Schritt" Padlet
+        const mainElement = document.querySelector('main'); // Der Haupt-Container, der scrollt
 
-            window.scrollTo({
-                top: scrollTarget,
+        if (section && progressCard && mainElement) {
+            const progressCardTop = progressCard.getBoundingClientRect().top + window.scrollY;
+            const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+            const currentMainScrollTop = mainElement.scrollTop;
+            const targetScrollTop = currentMainScrollTop + (sectionTop - progressCardTop);
+
+            mainElement.scrollTo({
+                top: targetScrollTop,
                 behavior: 'smooth'
             });
         }
