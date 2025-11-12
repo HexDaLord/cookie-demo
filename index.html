@@ -173,7 +173,7 @@
     body::after {
       content: "";
       display: block;
-      height: 1000px; /* gewünschte zusätzliche Scroll-Höhe */
+      height: 400px; /* gewünschte zusätzliche Scroll-Höhe */
     }
 
     /* ------------------------------------- */
@@ -367,6 +367,10 @@
         .content {
             width: 100%; /* Content nimmt volle Breite ein */
         }
+        .content-spacer {
+            height: 1000px;
+            visibility: hidden;
+        }
     }
 
     @media (max-width: 880px) {
@@ -528,6 +532,7 @@
           </div>
         </section>
 
+        <div class="content-spacer"></div>
         <footer>© Unterrichts-Demo – Keine Daten werden an Server übertragen.</footer>
       </section>
     </div>
