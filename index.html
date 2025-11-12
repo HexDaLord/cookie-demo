@@ -524,6 +524,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     /* ----------------------------- Helpers ----------------------------- */
+    let maxUnlockedStep = 2;
     /**
      * Setzt einen Cookie. Wenn `days` null oder undefined ist, wird es ein Session-Cookie.
      * @param {string} name - Der Name des Cookies.
@@ -871,7 +872,7 @@
       root.setAttribute('data-theme', nextTheme);
       themeToggle.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
       setCookie('theme_pref', nextTheme, 365);
-      markStep(1);
+      markStep(maxUnlockedStep);
     });
 
     function applySavedTheme() {
@@ -883,10 +884,16 @@
     }
 
     function markStep(n) {
+      // Aktiven Step visuell markieren
       document.querySelectorAll('.step').forEach(el => {
         el.classList.toggle('active', Number(el.getAttribute('data-step')) === n);
       });
-      unlockStep(n);
+
+      // Wenn ein höherer Schritt erreicht wird, Fortschritt merken
+      if (n > maxUnlockedStep) maxUnlockedStep = n;
+
+      // Nur bis zum höchsten freigeschalteten Schritt entsperren
+      unlockStep(maxUnlockedStep);
     }
 
     function unlockStep(n) {
@@ -950,7 +957,7 @@
           hideAdBanner();
       }
 
-      unlockStep(3);
+      unlockStep(maxUnlockedStep);
     }
 
     document.addEventListener('DOMContentLoaded', init);
