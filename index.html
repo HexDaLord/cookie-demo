@@ -962,21 +962,34 @@
     }
 
     function scrollToSection(stepNumber) {
-        const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
-        const progressCard = document.querySelector('.sidebar .card:first-child'); // Das "Schritt-für-Schritt" Padlet
-        const mainElement = document.querySelector('main'); // Der Haupt-Container, der scrollt
+      const section = document.querySelector(`section.card[data-step="${stepNumber}"]`);
+      const progressCard = document.querySelector('.sidebar .card:first-child'); // Das "Schritt-für-Schritt" Padlet
 
-        if (section && progressCard && mainElement) {
-            const progressCardTop = progressCard.getBoundingClientRect().top + window.scrollY;
-            const sectionTop = section.getBoundingClientRect().top + window.scrollY;
-            const currentMainScrollTop = mainElement.scrollTop;
-            const targetScrollTop = currentMainScrollTop + (sectionTop - progressCardTop);
+      if (section && progressCard) {
+          // Die obere Position der Section relativ zum Dokument
+          const sectionTop = section.getBoundingClientRect().top + window.scrollY;
 
-            mainElement.scrollTo({
-                top: targetScrollTop,
-                behavior: 'smooth'
-            });
-        }
+          // Die obere Position des "Schritt-für-Schritt"-Padlets relativ zum Dokument
+          // Da es sticky ist, müssen wir aufpassen.
+          // Die absolute Position ist nicht immer aussagekräftig, wenn es fixiert ist.
+          // Besser ist es, den Offset des Sidebar-Containers im Layout zu nutzen.
+          const sidebarTopInLayout = document.querySelector('.sidebar').offsetTop;
+          const progressCardOffsetInSidebar = progressCard.offsetTop; // Offset innerhalb der Sidebar Card
+
+          // Die effektive obere Position, auf die wir die Section ausrichten wollen:
+          // Das ist die obere Kante der Sidebar (inkl. header) plus der interne Offset der progressCard
+          // Diese Höhe bleibt (relativ zum Fenster) gleich, wenn die Sidebar sticky ist
+          const targetOffset = sidebarTopInLayout + progressCardOffsetInSidebar - 16; // 16px für das `main` padding
+
+          // Berechne die endgültige Scrollposition des Fensters
+          // Dies ist die obere Kante der Section, abzüglich des Offsets, den wir für die Sidebar wünschen.
+          const finalScrollPosition = sectionTop - targetOffset;
+
+          window.scrollTo({
+              top: finalScrollPosition,
+              behavior: 'smooth'
+          });
+      }
     }
 
 
