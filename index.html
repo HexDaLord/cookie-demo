@@ -531,7 +531,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     /* ----------------------------- Helpers ----------------------------- */
-    let maxUnlockedStep = 1;
+    let maxUnlockedStep;
     let currentActiveStep = 1;
     /**
      * Setzt einen Cookie. Wenn `days` null oder undefined ist, wird es ein Session-Cookie.
@@ -926,6 +926,8 @@
         if (maxUnlockedStep < 5) maxUnlockedStep = 5; // Unlock Step 5 (Tracking)
       }
 
+      localStorage.setItem('maxUnlockedStep', maxUnlockedStep.toString());
+
       unlockStepsUI(maxUnlockedStep);
       if (currentActiveStep > maxUnlockedStep || !document.querySelector(`.step[data-step="${currentActiveStep}"]`)) {
           markActiveStep(maxUnlockedStep);
@@ -986,12 +988,20 @@
         alert('Alle Daten gelöscht.');
         maxUnlockedStep = 1;
         currentActiveStep = 1;
+        localStorage.setItem('maxUnlockedStep', '1');
         checkAndUnlockSteps(); 
       }
     }
 
     /* --------------------- Init -------------------- */
     function init() {
+      const savedMaxStep = localStorage.getItem('maxUnlockedStep');
+      if (savedMaxStep) {
+          maxUnlockedStep = parseInt(savedMaxStep, 10);
+      } else {
+          maxUnlockedStep = 1; // Standardwert, wenn nichts gespeichert ist
+      }
+      
       renderCookieTable();
       applySavedTheme();
       updateSessionInfo();
@@ -1007,7 +1017,12 @@
       }
 
       checkAndUnlockSteps();
-      markActiveStep(1);
+      
+      if (maxUnlockedStep > 1) {
+          markActiveStep(maxUnlockedStep); 
+      } else {
+          markActiveStep(1); 
+      }
     }
 
     document.addEventListener('DOMContentLoaded', init);
