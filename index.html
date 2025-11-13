@@ -347,54 +347,106 @@
     /*  Responsive Design                    */
     /* ------------------------------------- */
     @media (max-width: 1400px) { /* Banner rückt früher rein, wenn der Bildschirm schmaler wird */
-        #ad-banner {
-            right: 0.5rem; /* Weniger Abstand zum Rand */
-            transform: translateX(0); /* Immer sichtbar, innerhalb des main-Bereichs */
-            position: sticky; /* Sticky, damit es mitscrollt */
-            top: 1rem;
-            align-self: flex-start;
-            margin-left: auto; /* An den rechten Rand schieben */
-        }
         main {
-            display: flex; /* Flexbox für main, um Banner und Layout nebeneinander zu legen */
-            flex-wrap: wrap; /* Erlaubt Umbruch auf kleineren Bildschirmen */
-            justify-content: center;
-            gap: 1rem;
+          display: flex; /* Hauptbereich als Flexbox für flexible Anordnung */
+          flex-direction: column; /* Standardmäßig untereinander */
+          gap: 1rem;
+          padding: 1rem;
+          max-width: none; /* Keine maximale Breite für main */
         }
+
         .layout {
-            grid-template-columns: 1fr; /* Layout wird einspaltig */
-            width: 100%; /* Layout nimmt volle Breite ein */
+          grid-template-columns: 1fr; /* Einspaltig für das Layout-Grid */
+          width: 100%; /* Layout nimmt volle Breite ein */
         }
+
         .sidebar {
-            position: static; /* Sidebar nicht mehr sticky */
-            width: 100%;
+          position: static; /* Sidebar nicht mehr sticky */
+          width: 100%; /* Volle Breite der Sidebar */
+          order: 2; /* Sidebar nach dem Content auf kleineren Screens */
         }
+
         .content {
-            width: 100%; /* Content nimmt volle Breite ein */
+          width: 100%; /* Content nimmt volle Breite ein */
+          order: 1; /* Content zuerst auf kleineren Screens */
         }
+
+        #ad-banner {
+          position: static; /* Banner fließt im Dokumentenfluss mit */
+          width: 100%; /* Volle Breite auf kleineren Bildschirmen */
+          margin-top: 1rem;
+          transform: translateX(0);
+          order: 3; /* Ad-Banner nach Sidebar */
+        }
+      }
+    @media (min-width: 1025px) and (max-width: 1400px) {
+    main {
+      flex-direction: row; /* Sidebar und Content nebeneinander auf Laptops */
+      align-items: flex-start; /* Elemente oben ausrichten */
+      justify-content: center; /* Zentrieren, falls Platz übrig ist */
+      flex-wrap: wrap; /* Erlaubt Umbruch, falls kein Platz ist */
     }
 
-    @media (max-width: 880px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .sidebar {
-        position: static;
-      }
-      .form-row {
-        flex-direction: column;
-      }
-      input[type=text], input[type=password], select {
-          width: 100%;
-          min-width: unset;
-      }
-      #ad-banner {
-          position: static; /* Banner fließt im Dokumentenfluss mit */
-          width: 100%; /* Volle Breite auf sehr kleinen Bildschirmen */
-          margin-top: 1rem;
-          transform: translateX(0); /* Sicherstellen, dass keine Verschiebung stattfindet */
-      }
+    .layout {
+        grid-template-columns: 320px 1fr; /* Kleinere Sidebar, mehr Platz für Content */
+        width: auto; /* Layout nimmt nur benötigte Breite ein */
+        flex-grow: 1; /* Layout-Bereich kann wachsen */
     }
+
+    .sidebar {
+        width: auto; /* Breite wird vom Grid bestimmt */
+        position: sticky; /* Sticky wieder aktivieren */
+        top: 1rem;
+        order: unset; /* Reihenfolge zurücksetzen */
+    }
+
+    .content {
+        width: auto; /* Breite wird vom Grid bestimmt */
+        order: unset;
+    }
+
+    #ad-banner {
+        position: sticky; /* Banner wieder sticky */
+        top: 1rem;
+        align-self: flex-start; /* Oben ausrichten */
+        width: 250px; /* Feste Breite für das Banner */
+        margin-left: 1rem; /* Abstand zur rechten Seite des Layouts */
+        order: unset;
+    }
+  }
+
+  @media (max-width: 1024px) { /* Übergang zu Tablet/kleineren Geräten */
+    .layout {
+      grid-template-columns: 1fr; /* Einspaltig für das Layout-Grid */
+    }
+    .sidebar {
+      position: static; /* Sidebar nicht mehr sticky */
+      width: 100%; /* Volle Breite */
+    }
+    /* Das Ad-Banner wird in der 1400px Media Query bereits auf static gesetzt und volle Breite,
+      daher sind hier keine weiteren Anpassungen für das Banner nötig, außer die Reihenfolge,
+      wenn es auf Desktop-Layout umbricht. */
+  }
+
+
+  @media (max-width: 768px) { /* Mobilgeräte (oder sehr kleine Tablets) */
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1rem;
+    }
+    header .brand {
+      margin-bottom: 0.5rem;
+    }
+    .form-row {
+      flex-direction: column;
+    }
+    input[type=text], input[type=password], select, button {
+        width: 100%;
+        min-width: unset;
+    }
+  }
+  
   </style>
 </head>
 <body data-theme="light">
