@@ -292,7 +292,12 @@
 
           <div style="margin-top:.6rem">
             <div style="margin-top:.5rem" class="muted">Aktuelle Begrüßung:</div>
-            <pre id="greeting">Hallo, Schüler!</pre>
+            <div style="display:flex; gap:0.5rem; margin-top:0.3rem; align-items:stretch;">
+              <!-- Das pre Element bekommt flex:1, damit es den Platz füllt -->
+              <pre id="greeting" style="margin:0; flex:1; display:flex; align-items:center;">Hallo, Schüler!</pre>
+              <!-- Der Button daneben -->
+              <button onclick="unlockPart2()" style="white-space:nowrap;">Los Gehts! 🔓</button>
+            </div>
           </div>
 
           <div style="margin-top:1rem; text-align:right;">
