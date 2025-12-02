@@ -6,7 +6,6 @@
   <title>Wie Websites dich erkennen — Interaktive Demo (Überarbeitet)</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    /* (Dein unveränderter CSS-Code — habe ich vollständig beibehalten) */
     :root {
       --color-bg: #f6f8fa;
       --color-card: #ffffff;
@@ -295,10 +294,14 @@
             <div style="margin-top:.5rem" class="muted">Aktuelle Begrüßung:</div>
             <pre id="greeting">Hallo, Schüler!</pre>
           </div>
+
+          <div style="margin-top:1rem; text-align:right;">
+            <button onclick="unlockPart2()">Los Gehts! ➡</button>
+          </div>
         </section>
 
         <!-- NEUE HAUPT-SEKTION: Session vs Persistent (jetzt Schritt 2) -->
-        <section class="card" data-step="2" data-always="true">
+        <section class="card" data-step="2">
           <h3>🔁 2. Session vs Persistent</h3>
           <div class="info">Diese Sektion erklärt den Unterschied und erlaubt, Session- und persistente Cookies zu setzen. Diese Sektion ist von Anfang an sichtbar.</div>
 
@@ -462,6 +465,16 @@
       const name = sessionStorage.getItem('username');
       greetingElement.textContent = name ? `Hallo, ${name}!` : 'Hallo, Schüler!';
       welcomeTextElement.textContent = name ? `Angemeldet: ${name}` : 'Willkommen!';
+    }
+
+    function unlockPart2() {
+      if (maxUnlockedStep < 2) {
+        maxUnlockedStep = 2;
+        localStorage.setItem('maxUnlockedStep', '2'); // Speichern, damit es beim Reload bleibt
+        checkAndUnlockSteps();
+      }
+      // Automatisch zu Schritt 2 scrollen
+      document.querySelector('.step[data-step="2"]').click();
     }
 
     /* --------------------- Persistent vs Session Demo -------------------- */
@@ -685,7 +698,6 @@
      * 6 Tracking (freigeschaltet wenn Standort gesetzt)
      */
     function checkAndUnlockSteps() {
-      if (maxUnlockedStep < 2) maxUnlockedStep = 2;
 
       const hasDemoSession = !!getCookie('demo_session');
       const hasDemoPersistent = !!getCookie('demo_persistent');
@@ -694,14 +706,15 @@
       if (hasDemoSession && hasDemoPersistent) {
         if (maxUnlockedStep < 3) maxUnlockedStep = 3;
       } else {
-        if (maxUnlockedStep >= 3) maxUnlockedStep = 1;
+        // Falls Cookies gelöscht werden: Wir fallen nur auf 2 zurück, nicht auf 1 (wenn 2 schon offen war)
+        if (maxUnlockedStep >= 3) maxUnlockedStep = 2;
       }
 
       // Schritt 4: Gerät — wenn eingeloggt
       if (sessionStorage.getItem('username')) {
         if (maxUnlockedStep < 4) maxUnlockedStep = 4;
       } else {
-        if (maxUnlockedStep >= 4) maxUnlockedStep = Math.max( maxUnlockedStep, 3 );
+        if (maxUnlockedStep >= 4) maxUnlockedStep = Math.max(maxUnlockedStep, 3);
       }
 
       // Schritt 5: Standort — wenn device-info angezeigt wurde
@@ -717,9 +730,11 @@
       localStorage.setItem('maxUnlockedStep', maxUnlockedStep.toString());
       unlockStepsUI(maxUnlockedStep);
 
-      if (currentActiveStep > maxUnlockedStep || !document.querySelector(`.step[data-step="${currentActiveStep}"]`)) {
+      // Wenn der aktuelle Step durch Löschen gesperrt wurde, gehe zum höchsten erlaubten
+      if (currentActiveStep > maxUnlockedStep) {
         markActiveStep(maxUnlockedStep);
       } else {
+        // UI Update für Sidebar Highlights
         markActiveStep(currentActiveStep);
       }
     }
