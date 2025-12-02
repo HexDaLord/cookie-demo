@@ -236,9 +236,9 @@
           <div class="progress" id="progress">
             <div class="step" data-step="1">1. Cookies</div>
             <div class="step" data-step="2">2. Session vs Persistent</div>
-            <div class="step" data-step="3">3. Login</div>
-            <div class="step" data-step="4">4. Gerät</div>
-            <div class="step" data-step="5">5. Standort</div>
+            <div class="step" data-step="3">3. Gerät</div>
+            <div class="step" data-step="4">4. Standort</div>
+            <div class="step" data-step="5">5. Login</div>
             <div class="step" data-step="6">6. Tracking</div>
             <div class="step" data-step="7">7. Cookies Managen</div>
           </div>
@@ -322,7 +322,28 @@
         </section>
 
         <section class="card" data-step="3">
-          <h3>🔐 3. Mini-Register / Login (lokal & ohne Server)</h3>
+          <h3>💻 3. Gerätedaten</h3>
+          <div class="info">Technische Informationen, die Websites mit JavaScript auslesen können. URL: https://amiunique.org</div>
+          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
+            <button onclick="showDeviceInfo()">Daten anzeigen</button>
+            <button onclick="clearDeviceInfo()" class="btn-ghost">Löschen</button>
+          </div>
+          <pre id="device-info">Noch keine Daten angezeigt.</pre>
+        </section>
+
+        <section class="card" data-step="4">
+          <h3>📍 4. Standort (nur mit Zustimmung)</h3>
+          <div class="info">Wenn erlaubt, zeigt die Karte ungefähr, wo sich das Gerät befindet. Besuche die Seite auch mit deinem Handy und vergleiche die Genauigkeit. Handy -> GPS -> Genauer</div>
+          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
+            <button onclick="getLocation()">Standort abfragen</button>
+            <button onclick="clearLocation()" class="btn-ghost">Karte verstecken</button>
+          </div>
+          <pre id="location-info">Noch keine Standortdaten.</pre>
+          <div id="map" style="display:none"></div>
+        </section>
+
+        <section class="card" data-step="5">
+          <h3>🔐 5. Mini-Register / Login (lokal & ohne Server)</h3>
           <div class="info">Registrieren & Anmelden werden nur lokal simuliert. Registrierte Daten werden im <b>localStorage</b> gespeichert. Die Login-Sitzung demonstriert einen Session-Cookie.</div>
 
           <div style="margin-top:.6rem">
@@ -342,27 +363,6 @@
             <div style="margin-top:.6rem" class="muted">Session-Info:</div>
             <pre id="session-info">Nicht eingeloggt.</pre>
           </div>
-        </section>
-
-        <section class="card" data-step="4">
-          <h3>💻 4. Gerätedaten</h3>
-          <div class="info">Technische Informationen, die Websites mit JavaScript auslesen können. URL: https://amiunique.org</div>
-          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
-            <button onclick="showDeviceInfo()">Daten anzeigen</button>
-            <button onclick="clearDeviceInfo()" class="btn-ghost">Löschen</button>
-          </div>
-          <pre id="device-info">Noch keine Daten angezeigt.</pre>
-        </section>
-
-        <section class="card" data-step="5">
-          <h3>📍 5. Standort (nur mit Zustimmung)</h3>
-          <div class="info">Wenn erlaubt, zeigt die Karte ungefähr, wo sich das Gerät befindet. Besuche die Seite auch mit deinem Handy und vergleiche die Genauigkeit. Handy -> GPS -> Genauer</div>
-          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
-            <button onclick="getLocation()">Standort abfragen</button>
-            <button onclick="clearLocation()" class="btn-ghost">Karte verstecken</button>
-          </div>
-          <pre id="location-info">Noch keine Standortdaten.</pre>
-          <div id="map" style="display:none"></div>
         </section>
 
         <section class="card" data-step="6">
@@ -422,6 +422,7 @@
     /* ----------------------------- Helpers ----------------------------- */
     let maxUnlockedStep;
     let currentActiveStep = 1;
+    let locationClicked = false;
 
     function setCookie(name, value, days) {
       let cookieString = `${name}=${encodeURIComponent(value)}; path=/`;
@@ -542,6 +543,9 @@
     function getLocation() {
       const out = document.getElementById('location-info');
       const mapDiv = document.getElementById('map');
+      locationClicked = true;
+      checkAndUnlockSteps();
+
       if (!navigator.geolocation) {
         out.textContent = '❌ Geolocation nicht unterstützt.';
         return;
@@ -726,17 +730,17 @@
         if (maxUnlockedStep < 3) maxUnlockedStep = 3;
       }
 
-      // Schritt 4: Gerät — wenn eingeloggt
-      if (sessionStorage.getItem('username')) {
+      // Schritt 4: Standort — wenn device-info angezeigt wurde (oder andere Bedingungen)
+      if (document.getElementById('device-info').textContent !== 'Noch keine Daten angezeigt.') {
         if (maxUnlockedStep < 4) maxUnlockedStep = 4;
       }
 
-      // Schritt 5: Gerätedaten angezeigt?
-      if (document.getElementById('device-info').textContent !== 'Noch keine Daten angezeigt.') {
+      // Schritt 5: Login — freischalten, sobald der Benutzer auf "Standort abfragen" geklickt hat
+      if (locationClicked) {
         if (maxUnlockedStep < 5) maxUnlockedStep = 5;
       }
 
-      // Schritt 6: Standort gesetzt?
+      // Schritt 6: Tracking — wenn Standort wirklich gesetzt wurde
       if (document.getElementById('location-info').textContent.startsWith('✅ Standort:')) {
         if (maxUnlockedStep < 6) maxUnlockedStep = 6;
       }
