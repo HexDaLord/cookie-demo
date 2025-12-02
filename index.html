@@ -240,6 +240,7 @@
             <div class="step" data-step="4">4. Gerät</div>
             <div class="step" data-step="5">5. Standort</div>
             <div class="step" data-step="6">6. Tracking</div>
+            <div class="step" data-step="7">7. Cookies Managen</div>
           </div>
 
           <div style="margin-top:.8rem" class="muted">Schnellaktionen</div>
@@ -392,6 +393,30 @@
             </div>
           </div>
         </section>
+
+        <section class="card" data-step="7">
+          <h3>🍪 7. Cookies Managen</h3>
+          <div class="info">Kurzes Erklärvideo: Wie du Cookies in Browsern einsehen, blockieren oder löschen kannst. (Video lokal / aus dem Repo geladen)</div>
+
+          <div style="margin-top:.6rem">
+            <div class="muted">Video:</div>
+            <!-- Verwende mehrere Quellen (mp4/webm) falls vorhanden; poster ist optional -->
+            <video id="cookies-video" controls preload="metadata" playsinline style="width:100%; border-radius:8px; margin-top:.5rem;">
+              <source src="videos/cookie-demo-v1.mp4" type="video/mp4">
+              <source src="videos/cookie-demo-v1.mp4" type="video/webm">
+              Dein Browser unterstützt das Video-Tag nicht. <a href="videos/cookie-demo-v1.mp4" target="_blank" rel="noopener">Video herunterladen</a>.
+            </video>
+
+            <div class="form-row" style="margin-top:.6rem">
+              <button onclick="unlockAndPlayVideo()">Video ansehen & freischalten</button>
+              <button onclick="document.getElementById('cookies-video').pause();" class="btn-ghost">Pause</button>
+              <button onclick="document.getElementById('cookies-video').currentTime = 0; document.getElementById('cookies-video').pause();" class="btn-ghost">Stop/Reset</button>
+            </div>
+
+            <div class="muted" style="margin-top:.5rem">Hinweis: Wenn du die Datei lokal hast, lade sie in dein GitHub-Repo (z. B. unter <code>/assets/</code>) und passe ggf. den Pfad an.</div>
+          </div>
+        </section>
+
 
         <div class="content-spacer"></div>
         <footer>© Unterrichts-Demo – Keine Daten werden an Server übertragen.</footer>
@@ -723,6 +748,11 @@
         if (maxUnlockedStep < 6) maxUnlockedStep = 6;
       }
 
+      // Schritt 7: Cookies managen — freischalten, sobald Tracking gesetzt wurde
+      if (getCookie('tracking_id')) {
+        if (maxUnlockedStep < 7) maxUnlockedStep = 7;
+      }
+
       // Persistieren (wichtig: hier wird nur mit dem evtl. erhöhten Wert überschrieben)
       localStorage.setItem('maxUnlockedStep', maxUnlockedStep.toString());
       unlockStepsUI(maxUnlockedStep);
@@ -752,6 +782,24 @@
         sec.classList.toggle('locked', stepNum > unlockedCount);
       });
     }
+
+    function unlockAndPlayVideo() {
+      // Freischalten (persistiert)
+      if (maxUnlockedStep < 7) {
+        maxUnlockedStep = 7;
+        localStorage.setItem('maxUnlockedStep', '7');
+        unlockStepsUI(maxUnlockedStep);
+      }
+      // Video starten (Browser-Autoplay kann blockieren, daher wird play() durch Klick ausgelöst)
+      const v = document.getElementById('cookies-video');
+      if (v) {
+        v.play().catch(err => {
+          // play() kann wegen Autoplay-Policy fehlschlagen; dann nichts weiter tun
+          console.log('Video play() blocked:', err);
+        });
+      }
+    }
+
 
     function scrollToSection(stepNumber) {
       setContentMinHeight();
