@@ -6,6 +6,7 @@
   <title>Wie Websites dich erkennen — Interaktive Demo (Überarbeitet)</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
+    /* (Dein unveränderter CSS-Code — habe ich vollständig beibehalten) */
     /* ------------------------------------- */
     /*  CSS Variables & Base Styles          */
     /* ------------------------------------- */
@@ -512,6 +513,25 @@
           </div>
         </section>
 
+        <!-- NEUE SEKTION: Session vs Persistent (im Hauptbereich) -->
+        <section class="card" data-step="1.5" data-always="true">
+          <h3>🔁 Session vs Persistent (im Hauptbereich)</h3>
+          <div class="info">Diese Sektion erklärt den Unterschied und erlaubt, Session- und persistente Cookies zu setzen. Diese Sektion ist von Anfang an sichtbar.</div>
+
+          <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+            <button onclick="setPersistentDemo()">Persistent setzen</button>
+            <button onclick="setSessionDemo()" class="btn-ghost">Session setzen</button>
+            <button onclick="deleteCookie('demo_persistent')" class="btn-ghost">Persistent löschen</button>
+            <button onclick="deleteCookie('demo_session')" class="btn-ghost">Session löschen</button>
+          </div>
+
+          <div style="margin-top:.6rem">
+            <div class="muted">Cookie-Status:</div>
+            <pre id="session-persistent-status">Status wird geladen...</pre>
+            <div class="muted" style="margin-top:.5rem">Hinweis: Der Register/ Login-Tab wird freigeschaltet, sobald beide Cookies vorhanden sind.</div>
+          </div>
+        </section>
+
         <section class="card" data-step="2">
           <h3>🔐 2. Mini-Register / Login (lokal & ohne Server)</h3>
           <div class="info">Registrieren & Anmelden werden nur lokal simuliert. Registrierte Daten werden im <b>localStorage</b> gespeichert. Die Login-Sitzung demonstriert einen Session-Cookie.</div>
@@ -611,7 +631,8 @@
       }
       document.cookie = cookieString;
       renderCookieTable(); // Tabelle nach jeder Cookie-Änderung aktualisieren
-      checkAndUnlockSteps(); 
+      updateSessionPersistentStatus();
+      checkAndUnlockSteps();
     }
 
     /**
@@ -620,8 +641,8 @@
      * @returns {string|null} Der Wert des Cookies oder null, wenn nicht gefunden.
      */
     function getCookie(name) {
-      const match = document.cookie.match(`(^|;)\\s*${name}=([^;]+)`);
-      return match ? decodeURIComponent(match.pop()) : null;
+      const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+      return match ? decodeURIComponent(match[1]) : null;
     }
 
     /**
@@ -631,6 +652,7 @@
     function deleteCookie(name) {
       document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
       renderCookieTable(); // Tabelle nach jeder Cookie-Änderung aktualisieren
+      updateSessionPersistentStatus();
       checkAndUnlockSteps();
     }
 
@@ -680,6 +702,14 @@
     function setSessionDemo() {
       setCookie('demo_session', 'tempValue');
       alert('Session Cookie "demo_session" gesetzt (verschwindet beim Schließen des Tabs/Browsers)');
+    }
+
+    /* Update-Anzeige für die neue Sektion: Session vs Persistent */
+    function updateSessionPersistentStatus() {
+      const status = document.getElementById('session-persistent-status');
+      const hasSession = !!getCookie('demo_session');
+      const hasPersistent = !!getCookie('demo_persistent');
+      status.textContent = `Session-Cookie (demo_session): ${hasSession ? 'gesetzt' : 'nicht gesetzt'}\nPersistent-Cookie (demo_persistent): ${hasPersistent ? 'gesetzt' : 'nicht gesetzt'}`;
     }
 
     /* --------------------- Device info -------------------- */
@@ -903,7 +933,7 @@
       const users = JSON.parse(localStorage.getItem('demo_users') || '{}');
       if (!users[u] || users[u].password !== btoa(p)) return alert('Ungültige Anmeldedaten');
 
-      setCookie('session_user', u);
+      setCookie('session_user', u); // session cookie to show in cookie table
       sessionStorage.setItem('username', u);
       updateSessionInfo();
       renderCookieTable();
@@ -964,25 +994,43 @@
         currentActiveStep = stepNumber; // Speichert den aktuell aktiven Schritt
     }
 
+    /**
+     * Prüft, welche Schritte freigeschaltet sind.
+     * WICHTIG: Register/Login (step 2) wird nur freigeschaltet, wenn sowohl demo_session als auch demo_persistent existieren.
+     */
     function checkAndUnlockSteps() {
       // Schritt 1: Cookies - immer aktiv.
-      
-      if (maxUnlockedStep < 2) maxUnlockedStep = 2;
+      if (maxUnlockedStep < 1) maxUnlockedStep = 1;
 
-      // Schritt 2: Login - abgeschlossen, wenn der Benutzer eingeloggt ist (sessionStorage 'username')
+      // Freischalten von Schritt 2 (Register/Login): Voraussetzung: both demo_session AND demo_persistent exist
+      const hasDemoSession = !!getCookie('demo_session');
+      const hasDemoPersistent = !!getCookie('demo_persistent');
+
+      if (hasDemoSession && hasDemoPersistent) {
+        if (maxUnlockedStep < 2) maxUnlockedStep = 2;
+      } else {
+        // Wenn die Voraussetzung nicht erfüllt, stelle sicher, dass Login nicht über 1 hinaus freigeschaltet ist
+        if (maxUnlockedStep >= 2) {
+          maxUnlockedStep = 1;
+        }
+      }
+
+      // Schritt 3: Gerät - abgeschlossen, wenn der Benutzer eingeloggt ist (sessionStorage 'username')
       if (sessionStorage.getItem('username')) {
         if (maxUnlockedStep < 3) maxUnlockedStep = 3; // Unlock Step 3 (Gerät)
       } else {
-        // Wenn ausgeloggt, dann maxUnlockedStep auf 2 zurücksetzen, aber nicht unter 1
+        // Wenn ausgeloggt, dann maxUnlockedStep nicht automatisch zurücksetzen unterhalb von 2 (die Cookie-Voraussetzung bleibt)
         if (maxUnlockedStep >= 3) {
           maxUnlockedStep = 2;
         }
       }
 
+      // Schritt 4: Standort - wenn device-info angezeigt wurde
       if (document.getElementById('device-info').textContent !== 'Noch keine Daten angezeigt.') {
         if (maxUnlockedStep < 4) maxUnlockedStep = 4; // Unlock Step 4 (Standort)
       }
 
+      // Schritt 5: Tracking - wenn Standort wirklich gesetzt wurde
       if (document.getElementById('location-info').textContent.startsWith('✅ Standort:')) {
         if (maxUnlockedStep < 5) maxUnlockedStep = 5; // Unlock Step 5 (Tracking)
       }
@@ -997,6 +1045,10 @@
       }
     }
 
+    /**
+     * Aktualisiert die Sidebar-UI: welche Schritte sind anklickbar / sichtbar / gesperrt.
+     * Sektionen mit data-always="true" werden nicht gesperrt (z.B. unsere neue Session vs Persistent Sektion).
+     */
     function unlockStepsUI(unlockedCount) {
       document.querySelectorAll('.step').forEach(step => {
         const stepNum = Number(step.getAttribute('data-step'));
@@ -1015,6 +1067,11 @@
       });
 
       document.querySelectorAll('section.card[data-step]').forEach(sec => {
+        // Wenn data-always gesetzt ist, nie "locked" anwenden
+        if (sec.dataset.always === 'true') {
+          sec.classList.remove('locked');
+          return;
+        }
         const stepNum = Number(sec.getAttribute('data-step'));
         sec.classList.toggle('locked', stepNum > unlockedCount);
       });
@@ -1043,30 +1100,6 @@
         }
     }
 
-    // function adjustContentHeight() {
-    //     const main = document.querySelector('main');
-    //     const sidebar = document.querySelector('.sidebar .card:first-child'); // Step-by-Step Card
-    //     const content = document.querySelector('section.content');
-
-    //     if (!main || !sidebar || !content) return;
-
-    //     // Sidebar-Höhe + Abstand nach unten
-    //     const sidebarRect = sidebar.getBoundingClientRect();
-    //     const sidebarHeight = sidebarRect.height;
-
-    //     // Berechne bisherige Content-Höhe
-    //     const contentHeight = content.scrollHeight;
-
-    //     // Benötigte Mindesthöhe, damit letzte Section auf Sidebar-Höhe kommt
-    //     const requiredHeight = sidebarHeight;
-
-    //     if (contentHeight < requiredHeight) {
-    //         content.style.minHeight = requiredHeight + 'px';
-    //     } else {
-    //         content.style.minHeight = 'auto';
-    //     }
-    // }
-    
     function setContentMinHeight() {
         const sidebar = document.querySelector('.sidebar .card:first-child');
         const content = document.querySelector('section.content');
@@ -1118,6 +1151,8 @@
       applySavedTheme();
       updateSessionInfo();
       updateGreeting();
+
+      updateSessionPersistentStatus(); // neuen Status initial setzen
 
       const lastCategory = localStorage.getItem('last_category');
       if (lastCategory && getCookie('tracking_id')) {
