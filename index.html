@@ -101,8 +101,8 @@
     .content-spacer { height:500px; width:100%; }
     body::after { content:""; display:block; height:400px; }
 
-    .progress { display:flex; gap:.5rem; align-items:center; margin-top:.5rem; overflow-x:auto; padding-bottom:.25rem; }
-    .step { flex:1 1 auto; min-width:0; background:var(--color-glass); padding:.45rem .6rem; border-radius:8px; text-align:center; font-weight:600; color:var(--color-text-muted); cursor:pointer; }
+    .progress { display:flex; flex-direction: column; gap:0.3rem}
+    .step {background: var(--color-glass); padding: 0.35rem 0.55rem; border-radius: 8px; font-size: 0.90rem; line-height: 1.2; cursor: pointer;}
     .step.active { background:var(--gradient-header); color:white; }
 
     .controls { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.7rem; }
