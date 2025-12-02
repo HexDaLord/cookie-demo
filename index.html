@@ -403,17 +403,10 @@
             <!-- Verwende mehrere Quellen (mp4/webm) falls vorhanden; poster ist optional -->
             <video id="cookies-video" controls preload="metadata" playsinline style="width:100%; border-radius:8px; margin-top:.5rem;">
               <source src="videos/cookie-demo-v1.mp4" type="video/mp4">
-              <source src="videos/cookie-demo-v1.mp4" type="video/webm">
               Dein Browser unterstützt das Video-Tag nicht. <a href="videos/cookie-demo-v1.mp4" target="_blank" rel="noopener">Video herunterladen</a>.
             </video>
 
-            <div class="form-row" style="margin-top:.6rem">
-              <button onclick="unlockAndPlayVideo()">Video ansehen & freischalten</button>
-              <button onclick="document.getElementById('cookies-video').pause();" class="btn-ghost">Pause</button>
-              <button onclick="document.getElementById('cookies-video').currentTime = 0; document.getElementById('cookies-video').pause();" class="btn-ghost">Stop/Reset</button>
-            </div>
-
-            <div class="muted" style="margin-top:.5rem">Hinweis: Wenn du die Datei lokal hast, lade sie in dein GitHub-Repo (z. B. unter <code>/assets/</code>) und passe ggf. den Pfad an.</div>
+            <div class="muted" style="margin-top:.5rem"></div>
           </div>
         </section>
 
@@ -782,24 +775,6 @@
         sec.classList.toggle('locked', stepNum > unlockedCount);
       });
     }
-
-    function unlockAndPlayVideo() {
-      // Freischalten (persistiert)
-      if (maxUnlockedStep < 7) {
-        maxUnlockedStep = 7;
-        localStorage.setItem('maxUnlockedStep', '7');
-        unlockStepsUI(maxUnlockedStep);
-      }
-      // Video starten (Browser-Autoplay kann blockieren, daher wird play() durch Klick ausgelöst)
-      const v = document.getElementById('cookies-video');
-      if (v) {
-        v.play().catch(err => {
-          // play() kann wegen Autoplay-Policy fehlschlagen; dann nichts weiter tun
-          console.log('Video play() blocked:', err);
-        });
-      }
-    }
-
 
     function scrollToSection(stepNumber) {
       setContentMinHeight();
