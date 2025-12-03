@@ -543,8 +543,13 @@
     function getLocation() {
       const out = document.getElementById('location-info');
       const mapDiv = document.getElementById('map');
+      
       locationClicked = true;
-      checkAndUnlockSteps();
+      if (maxUnlockedStep < 5) {
+        maxUnlockedStep = 5;
+        localStorage.setItem('maxUnlockedStep', maxUnlockedStep.toString());
+        unlockStepsUI(maxUnlockedStep);
+      }
 
       if (!navigator.geolocation) {
         out.textContent = '❌ Geolocation nicht unterstützt.';
