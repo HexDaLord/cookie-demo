@@ -288,8 +288,13 @@
 
       <section class="content">
         <section class="card" data-step="1">
-          <h3>🍪 1. Cookies – persönliche Begrüßung & Demo</h3>
-          <div class="info">Diese Sektion zeigt wie persistent gespeicherte Cookies (z. B. Theme-Präferenz) und Session-Cookies (Login-Sitzung) funktionieren. Deine Begrüßung wird durch den Login-Status gesteuert. Es werden <b>keine</b> echten Tracker gesetzt.</div>
+          <h3>🍪 1. Cookies</h3>
+          <div class="info">Diese Sektion erklärt, was Cookies sind: kleine Textdateien, die eine Website in deinem Browser speichert. 
+          Sie helfen einer Seite, sich Einstellungen zu merken – zum Beispiel Sprache, Dark-Mode oder Begrüßungen. 
+          Ohne Cookies würdest du für jede Website wie ein völlig neuer Besucher wirken.
+
+          <b>Aufgabe:</b> Klicke auf „Los Gehts!“, um die Demo zu starten und den nächsten Bereich freizuschalten.
+          </div>
 
           <div style="margin-top:.6rem">
             <div style="margin-top:.5rem" class="muted">Aktuelle Begrüßung:</div>
@@ -305,7 +310,15 @@
         <!-- NEUE HAUPT-SEKTION: Session vs Persistent (jetzt Schritt 2) -->
         <section class="card" data-step="2">
           <h3>🔁 2. Session vs Persistent</h3>
-          <div class="info">Diese Sektion erklärt den Unterschied und erlaubt, Session- und persistente Cookies zu setzen. Diese Sektion ist von Anfang an sichtbar.</div>
+          <div class="info">Hier lernst du den Unterschied zwischen Session- und Persistent-Cookies kennen. 
+          Session-Cookies verschwinden, sobald du den Browser schließt. 
+          Persistente Cookies bleiben länger gespeichert und halten z. B. deine Einstellungen oder Entscheidungen fest.
+
+          <b>Warum ist das wichtig?</b>  
+          Ohne Session-Cookies könnten Seiten kein Login verwalten. Ohne persistente Cookies vergisst eine Seite deine Vorlieben.
+
+          <b>Aufgabe:</b> Setze jeweils ein Session- und ein Persistent-Cookie, um den nächsten Teil freizuschalten.
+          </div>
 
           <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
             <button onclick="setPersistentDemo()">Persistent setzen</button>
@@ -323,7 +336,14 @@
 
         <section class="card" data-step="3">
           <h3>💻 3. Gerätedaten</h3>
-          <div class="info">Technische Informationen, die Websites mit JavaScript auslesen können. URL: https://amiunique.org</div>
+          <div class="info">Diese Sektion zeigt dir, welche technischen Informationen Webseiten ganz ohne Zustimmung auslesen können.
+
+          <b>Warum ist das wichtig?</b>  
+          Solche Daten helfen Webseiten, sich an dein Gerät anzupassen – können aber auch zum sogenannten „Fingerprinting“ beitragen, 
+          womit man Nutzer wiedererkennen kann.
+
+          <b>Aufgabe:</b> Lass dir deine Gerätedaten anzeigen, um den nächsten Teil freizuschalten.
+          </div>
           <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
             <button onclick="showDeviceInfo()">Daten anzeigen</button>
             <button onclick="clearDeviceInfo()" class="btn-ghost">Löschen</button>
@@ -333,7 +353,14 @@
 
         <section class="card" data-step="4">
           <h3>📍 4. Standort (nur mit Zustimmung)</h3>
-          <div class="info">Wenn erlaubt, zeigt die Karte ungefähr, wo sich das Gerät befindet. Besuche die Seite auch mit deinem Handy und vergleiche die Genauigkeit. Handy -> GPS -> Genauer</div>
+          <div class="info">Webseiten dürfen deinen Standort nur abfragen, wenn du zustimmst. 
+          Je nach Gerät ist der Standort unterschiedlich genau (Handy sehr genau, Laptop eher ungenau).
+
+          <b>Warum ist das wichtig?</b>  
+          Standortdaten gehören zu den sensibelsten Daten im Web und sollten bewusst freigegeben werden.
+
+          <b>Aufgabe:</b> Klicke auf „Standort abfragen“. Damit schaltest du den nächsten Bereich frei.
+          </div>
           <div style="margin-top:.6rem; display:flex; gap:.5rem; align-items:center">
             <button onclick="getLocation()">Standort abfragen</button>
             <button onclick="clearLocation()" class="btn-ghost">Karte verstecken</button>
@@ -344,7 +371,14 @@
 
         <section class="card" data-step="5">
           <h3>🔐 5. Mini-Register / Login (lokal & ohne Server)</h3>
-          <div class="info">Registrieren & Anmelden werden nur lokal simuliert. Registrierte Daten werden im <b>localStorage</b> gespeichert. Die Login-Sitzung demonstriert einen Session-Cookie.</div>
+          <div class="info">Viele Webseiten verwenden ein Login-System, um dich als Benutzer zu erkennen. 
+          Beim Einloggen wird typischerweise ein Session-Cookie gesetzt, das dich während deines Besuchs „angemeldet“ hält.
+
+          <b>Warum ist das wichtig?</b>  
+          Ohne Session-Cookies würde die Seite nach jedem Klick vergessen, wer du bist.
+
+          <b>Aufgabe:</b> Registriere dich und logge dich ein. Danach wird der nächste Bereich freigeschaltet.
+          </div>
 
           <div style="margin-top:.6rem">
             <div class="form-row">
@@ -367,7 +401,15 @@
 
         <section class="card" data-step="6">
           <h3>📢 6. Tracking-Simulation</h3>
-          <div class="info">Simuliere ein Werbecookie (tracking_id) und beobachte, wie eine Seite dich bei einem erneuten Besuch "wiedererkennen" könnte. Wähle ein Interesse, um ein gezieltes Werbebanner zu simulieren.</div>
+          <div class="info">Tracking beschreibt Methoden, mit denen Webseiten oder Werbenetzwerke dich wiedererkennen können. 
+          Oft geschieht das über Tracking-Cookies, in denen eine eindeutige ID gespeichert wird.
+
+          <b>Warum ist das wichtig?</b>  
+          Damit lässt sich z. B. Werbung personalisieren oder messen, wie oft Nutzer eine Seite besuchen. 
+          In dieser Demo wird Tracking nur simuliert – es werden keine echten Tracker verwendet.
+
+          <b>Aufgabe:</b> Wähle eine Interessenskategorie und setze ein Tracking-Cookie, um den letzten Bereich freizuschalten.
+          </div>
           <div style="margin-top:.6rem">
             <div class="form-row">
               <label for="ad-category-select">Was interessiert dich?</label>
@@ -396,7 +438,12 @@
 
         <section class="card" data-step="7">
           <h3>🍪 7. Cookies Managen</h3>
-          <div class="info">Kurzes Erklärvideo: Wie du Cookies in Browsern einsehen, blockieren oder löschen kannst. (Video lokal / aus dem Repo geladen)</div>
+          <div class="info">Hier lernst du, wie du Cookies in deinem Browser ansehen oder löschen kannst. 
+          Das gibt dir Kontrolle darüber, was Webseiten über dich speichern und wie lange.
+          <b>Warum ist das wichtig?</b>  
+          Viele Nutzer wissen nicht, dass sie jederzeit ihre gespeicherten Daten löschen oder das Setzen neuer Cookies einschränken können.
+          <b>Aufgabe:</b> Sieh dir das Video an. Es zeigt dir, wie du Cookies im Chrome-Browser verwaltest.
+          </div>
 
           <div style="margin-top:.6rem">
             <div class="muted">Video:</div>
