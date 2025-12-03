@@ -726,7 +726,6 @@
      * 6 Tracking (freigeschaltet wenn Standort gesetzt)
      */
     function checkAndUnlockSteps() {
-
       const hasDemoSession = !!getCookie('demo_session');
       const hasDemoPersistent = !!getCookie('demo_persistent');
 
@@ -735,7 +734,7 @@
         if (maxUnlockedStep < 3) maxUnlockedStep = 3;
       }
 
-      // Schritt 4: Standort — wenn device-info angezeigt wurde (oder andere Bedingungen)
+      // Schritt 4: Gerät — wenn device-info angezeigt wurde (oder andere Bedingungen)
       if (document.getElementById('device-info').textContent !== 'Noch keine Daten angezeigt.') {
         if (maxUnlockedStep < 4) maxUnlockedStep = 4;
       }
@@ -745,8 +744,9 @@
         if (maxUnlockedStep < 5) maxUnlockedStep = 5;
       }
 
-      // Schritt 6: Tracking — wenn Standort wirklich gesetzt wurde
-      if (document.getElementById('location-info').textContent.startsWith('✅ Standort:')) {
+      // Schritt 6: Tracking — NUR freischalten, wenn der Benutzer eingeloggt ist.
+      // (Unabhängig davon, ob Standort gesetzt wurde oder nicht)
+      if (sessionStorage.getItem('username')) {
         if (maxUnlockedStep < 6) maxUnlockedStep = 6;
       }
 
@@ -755,17 +755,17 @@
         if (maxUnlockedStep < 7) maxUnlockedStep = 7;
       }
 
-      // Persistieren (wichtig: hier wird nur mit dem evtl. erhöhten Wert überschrieben)
+      // Persistieren und UI aktualisieren
       localStorage.setItem('maxUnlockedStep', maxUnlockedStep.toString());
       unlockStepsUI(maxUnlockedStep);
 
-      // Wenn der aktuelle Step höher ist als max, setze ihn zurück auf max (Sicherheit)
       if (currentActiveStep > maxUnlockedStep) {
         markActiveStep(maxUnlockedStep);
       } else {
         markActiveStep(currentActiveStep);
       }
     }
+
 
     function unlockStepsUI(unlockedCount) {
       document.querySelectorAll('.step').forEach(step => {
